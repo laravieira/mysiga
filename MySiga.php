@@ -123,6 +123,7 @@ class MySiga {
 
 		$result["body"] = strstr($result["body"], 'id="menuLayout"');
 		$user = array(
+			// Change this to preg_match
 			"cpf"       => $this->strpart($result["body"], "rio: ", "]"),
 			"matricula" => $this->strpart($result["body"], "Perfil Atual: ", "]"),
 			"msginbox"  => $this->strpart($result["body"], 'siga/common/caixamensagem/formCaixa/', '"'),
