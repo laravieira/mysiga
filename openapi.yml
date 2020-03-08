@@ -1,0 +1,16 @@
+openapi: v3
+info:
+  title: MySIGA
+  description: An unofficial API RESTful for SIGA3 of UFJF based on webscraping with PHP.
+  #termsOfService: http://example.com/terms/
+  contact:
+    name: JWDouglas Vieira
+    url: https://github.com/JWDouglas/MySIGA/issues
+    email: contato@jwdouglas.net
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.0.0
+servers:
+- url: https://jwdouglas.net/api/mysiga
+  description: Official server for use MySIGA API.
