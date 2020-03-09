@@ -2,7 +2,7 @@
 
 namespace MySiga {
 
-class MyError {
+class SigaError {
 
     // -----------------------------------------------------
     // -                  Base error info                  -

@@ -2,7 +2,15 @@
 
 namespace MySiga {
 
-require_once('MyError.php');
+require_once('SigaError.php');
+
+// define all info consts
+const MYSIGA_NAME     = 'MySIGA';
+const MYSIGA_FULLNAME = 'MySIGA API';
+const MYSIGA_VERSION  = '0.0.0';
+const MYSIGA_SERVER   = 'https://jwdouglas.net/api/mysiga';
+const MYSIGA_DESC     = 'An unofficial API RESTful for SIGA3 of UFJF based on webscraping with PHP.';
+const MYSIGA_DOC      = 'bit.ly/mysiga';
 
 function get($uri) {
     return curl_get($_SESSION['url'].$uri);
@@ -28,7 +36,7 @@ function post($uri, $body = array(), $cookies = array()) {
     curl_setopt($request, CURLOPT_AUTOREFERER,    true);
     curl_setopt($request, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($request, CURLOPT_SSL_VERIFYPEER, true);
-    $useragent = MySIGA::MYSIGA_NAME.'/'.MySIGA::MYSIGA_VERSION.' (+'.MySIGA::MYSIGA_DOC.') '.$_SERVER['SERVER_SOFTWARE'];
+    $useragent = MYSIGA_NAME.'/'.MYSIGA_VERSION.' (+'.MYSIGA_DOC.') '.$_SERVER['SERVER_SOFTWARE'];
     curl_setopt($request, CURLOPT_USERAGENT, $useragent);
     $content = curl_exec($request);
 
@@ -38,13 +46,13 @@ function post($uri, $body = array(), $cookies = array()) {
     $data["code"] = curl_getinfo($request, CURLINFO_HTTP_CODE);
 
     if($data['code'] == 401)
-        return MyError::report('SIGA_NO_LOGGED');
+        return SigaError::report('SIGA_NO_LOGGED');
 
     if($data["code"] != 200 && $data["code"] != 302 && $data["code"] != 303)
-        return MyError::report('SIGA_PAGE_UNAVAILABLE');
+        return SigaError::report('SIGA_PAGE_UNAVAILABLE');
 
     if(!$data['header'] || !$data['body'] || !$data['url'])
-        return MyError::report('SIGA_PAGE_UNLOAD');
+        return SigaError::report('SIGA_PAGE_UNLOAD');
     
     curl_close($request);
     return $data;
@@ -70,7 +78,7 @@ function curl_get($url, $cookies = array()) {
     curl_setopt($request, CURLOPT_AUTOREFERER,    true);
     curl_setopt($request, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($request, CURLOPT_SSL_VERIFYPEER, true);
-    $useragent = MySIGA::MYSIGA_NAME.'/'.MySIGA::MYSIGA_VERSION.' (+'.MySIGA::MYSIGA_DOC.') '.$_SERVER['SERVER_SOFTWARE'];
+    $useragent = MYSIGA_NAME.'/'.MYSIGA_VERSION.' (+'.MYSIGA_DOC.') '.$_SERVER['SERVER_SOFTWARE'];
     curl_setopt($request, CURLOPT_USERAGENT, $useragent);
     $content = curl_exec($request);
     
@@ -80,13 +88,13 @@ function curl_get($url, $cookies = array()) {
     $data['code']   = curl_getinfo($request, CURLINFO_HTTP_CODE);
 
     if($data['code'] == 401)
-        return MyError::report('SIGA_NO_LOGGED');
+        return SigaError::report('SIGA_NO_LOGGED');
 
     if($data["code"] != 200 && $data["code"] != 302 && $data["code"] != 303)
-        return MyError::report('SIGA_PAGE_UNAVAILABLE');
+        return SigaError::report('SIGA_PAGE_UNAVAILABLE');
 
     if(!$data['header'] || !$data['body'] || !$data['url'])
-        return MyError::report('SIGA_PAGE_UNLOAD');
+        return SigaError::report('SIGA_PAGE_UNLOAD');
     
     $data['cookies'] = array();
     preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $data['header'], $matches);
