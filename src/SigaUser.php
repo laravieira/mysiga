@@ -71,6 +71,64 @@ class SigaUser {
         return $user;
     }
 
+    public function grade() {
+		if(session_status() != PHP_SESSION_ACTIVE)
+            session_start();
+        if(!isset($_SESSION['session']))
+            return SigaError::report('SIGA_PAGE_NOT_LOADED');
+        
+        $result = get('/siga/academico/acessoaluno/formNota');
+        if(isset($result['error'])) return $result;
+    
+        $data = strpart($result['body'], 'culas.setData( ', ");");
+        $data = json_extract($data);
+        $classes = array();
+        
+        foreach($data as $class) {
+
+            $result['body'] = strstr($result['body'], $class->codDisciplina."(".$class->turma.")");
+            $id             = strpart($result['body'], 'id="bgMatricula', '"');
+            $gmethod        = strpart(strstr($result['body'], 'utilizado:'), '<b>', "<");
+
+            $tdata    = explode('<span', strpart(strstr($result['body'], 'Docentes:'), 'mBox', '</div>'));
+            $teathers = array();
+            foreach($tdata as $key => $teather) {
+                if($key == 0) continue;
+                $teathers[] = upname(strpart($teather, '>', '<'));
+            }
+
+            // ---------------------------
+            // ATENTION:  Need observation
+            // ---------------------------
+            $tdata = json_extract(strpart($result['body'], $id.'.setData( ', ");"));
+
+            $tests  = array();
+            foreach($tdata as $test) {
+                $maxgrade = strpart(strstr(strstr($test, $id), $id), '<td', 'mProgressBar');
+                $tests[] = array(
+                    "grade"       => $test->nota,
+                    "maxgrade"    => strstr(explode('>',substr(strstr(strstr($maxgrade, ' >'), ' >'), 2))[13], '<', true),
+                    "description" => $test->descricao,
+                    "date"        => $test->dataAplicacao,
+                    "weinght"     => $test->peso,
+                );
+            }
+
+            $classes[$id] = array(
+                "name"        => upname($class->nomeDisciplina),
+                "code"        => $class->codDisciplina,
+                "letter"      => $class->turma,
+                "teathers"    => $teathers,
+                "status"      => $class->situacao,
+                "fullgrade"   => $class->nota,
+                "grademethod" => $gmethod,
+                "tests"       => $tests,
+                "year"        => strstr($class->anoSemestre, '/', true),
+                "halfyear"    => strpart($class->anoSemestre, '/'),
+            );
+        }
+        return $classes;
+    }
 }
 
 } // End of namespace
