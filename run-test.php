@@ -12,6 +12,6 @@ function show($data) {echo json_encode($data);}
 //show($siga->logout());
 
 $user = new MySiga\SigaUser();
-show($user->info());
+show($user->data());
 
 ?>

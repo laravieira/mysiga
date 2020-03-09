@@ -7,7 +7,7 @@ require_once('SigaUtiliries.php');
 
 class SigaUser {
 
-    function info() {
+    function data() {
         
 		if(session_status() != PHP_SESSION_ACTIVE)
             session_start();
@@ -18,20 +18,56 @@ class SigaUser {
         if(isset($result['error'])) return $result;
 
         $result['body'] = strpart($result['body'], 'menuL');
-        $user = array(
-            'cpf'       => strpart($result['body'], "rio: ", "]"),
-            'matricula' => strpart($result['body'], "Atual: ", "]"),
-            'msginbox'  => strpart($result['body'], 'Caixa/', '"'),
-        );
+        $user = array();
+
+        $registry = strpart($result['body'], 'Atual: ', ']');
+        $msginbox = strpart($result['body'], 'Caixa/', '"');
 
         $result['body'] = strpart($result['body'], 'bodyL');
-        $user['email']  = strtolower(strpart(strstr($result['body'], 'email'), 'value="', '"'));
-        $user['name']   = upname(strpart(strstr($result['body'], 'nome'), 'value="', '"'));
 
-        if(!$user['cpf'] || !$user['matricula'] || !$user['msginbox'] || !$user['email'] || !$user['name'])
+        $last_mod = strpart(strstr($result['body'], 'racao'), '>', '<').' 00:00:00 -0300';
+        $birthday = strpart(strstr($result['body'], 'mento'), 'value="', '"').' 00:00:00 -0300';
+        $birthloc = explode(' / ', strpart(strstr($result['body'], 'al de nas'), 'value="', '"'));
+
+        $user['name']       = upname(strpart(strstr($result['body'], 'nome'), 'value="', '"'));
+        $user['contact']    = array(
+            'email'    => strtolower(strpart(strstr($result['body'], 'email'), 'value="', '"')),
+            'landline' => preg_replace('~[\(|\)|\s|\-|\+]~', '',strpart(strstr($result['body'], 'fone'), 'value="', '"')),
+            'phone'    => preg_replace('~[\(|\)|\s|\-|\+]~', '',strpart(strstr($result['body'], 'ular'), 'value="', '"')),
+        );
+
+        $user['documentation'] = array(
+            'cpf'        => strpart(strstr($result['body'], 'CPF'), 'value="', '"'),
+            'rg'         => array(
+                'number'    => preg_replace('~[a-z|A-Z|\s|\-|\.]~', '',strpart(strstr($result['body'], 'numeroRG'), 'value="', '"')),
+                'expediter' => strpart(strstr($result['body'], 'orgaoRG'), 'value="', '"'),
+            ),
+            'university' => array(
+                'registry' => $registry,
+                'msginbox' => $msginbox,
+            ),
+            'father'     => upname(strpart(strstr($result['body'], 'Pai'), 'value="', '"')),
+            'mother'     => upname(strpart(strstr($result['body'], 'Mae'), 'value="', '"')),
+            'birthday'   => date_format(date_create_from_format('d/m/Y H:i:s O', $birthday), 'r'),
+            'birthplace' => upname($birthloc[0]).', '.$birthloc[1],
+        );
+
+        $result['body'] = strpart($result['body'], 'CEP');
+        $complement = explode('/', strpart(strstr($result['body'], 'complemento'), 'value="', '"').'/');
+        $user['address'] = array(
+            'stret'        => upname(strpart(strstr($result['body'], 'endereco'), 'value="', '"')),
+            'number'       => trim($complement[0]),
+            'complement'   => trim(upname($complement[1])),
+            'neighborhood' => upname(strpart(strstr($result['body'], 'bairro'), 'value="', '"')),
+            'cite'         => upname(strpart(strstr($result['body'], 'municipio'), 'value="', '"')),
+            'state'        => strpart(strstr($result['body'], 'UF'), 'value="', '"'),
+            'CEP'          => strpart(strstr($result['body'], 'CEP'), 'value="', '"'),
+        );
+
+        $user['last_alteration'] = date_format(date_create_from_format('d/m/Y H:i:s O', $last_mod), 'r');
+
+        if(!$registry || !$msginbox)
             return SigaError::report('SIGA_NO_LOGGED');
-        
-        $user['logged'] = true;
         return $user;
     }
 
