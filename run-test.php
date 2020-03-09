@@ -13,6 +13,6 @@ $siga = new MySIGA\SigaLogin();
 
 $user = new MySiga\SigaUser();
 //show($user->data());
-show($user->grade());
+show($user->history());
 
 ?>

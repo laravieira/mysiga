@@ -129,6 +129,46 @@ class SigaUser {
         }
         return $classes;
     }
+
+    
+    public function history() {
+		if(session_status() != PHP_SESSION_ACTIVE)
+            session_start();
+        if(!isset($_SESSION['session']))
+            return SigaError::report('SIGA_PAGE_NOT_LOADED');
+        
+        $result = get('/siga/academico/acessoaluno/formEmitirHistorico');
+        if(isset($result['error'])) return $result;
+
+        $result['body'] = strpart($result['body'], 'icula.setData( ', 'require');
+        $classes = json_extract(strpart($result['body'], null, ');'));
+
+        $history = array();
+        $history['active'] = array();
+        foreach($classes as $class) $history['active'][] = array(
+            'name'     => upname($class->nomeDisciplina),
+            'code'     => $class->codDisciplina,
+            'letter'   => $class->turma,
+            'status'   => $class->situacao,
+            'year'     => $class->ano,
+            'halfyear' => $class->semestre,
+        );
+
+        $classes = json_extract(strpart($result['body'], 'orico.setData( ', ');'));
+
+        $history['finished'] = array();
+        foreach($classes as $class) $history['finished'][$class->idHistorico] = array(
+            'name'     => upname($class->nomeDisciplina),
+            'code'     => $class->codDisciplina,
+            'letter'   => $class->turma,
+            'status'   => $class->situacao,
+            'grade'    => $class->nota,
+            'year'     => $class->ano,
+            'halfyear' => $class->semestre,
+        );
+        return $history;
+    }
+
 }
 
 } // End of namespace
