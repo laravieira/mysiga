@@ -129,6 +129,12 @@ function upname($name) {
     return substr($name, 1);
 }
 
+function json_extract($string, $return_json=true) {
+    $string = preg_replace('~\n~', '', $string);
+    $string = str_replace(array('{', '",', ':'), array('{"', '","', '":'), $string);
+    return $return_json?json_decode($string):$string;
+}
+
 function strpart($string, $start=false, $end=false, $keep_start=false, $keep_end=false) {
     $string = ($start != false)?strstr($string, $start):$string;
     $string = ($start != false && !$keep_start)?substr($string, strlen($start)):$string;
