@@ -19,20 +19,28 @@ class MySiga {
 		if(session_status() != PHP_SESSION_ACTIVE)
 			session_start();
 		
-		$url = isset($_SESSION["url"])?$_SESSION["url"]:"https://siga.ufjf.br/redirect.php/";
-		
-		if(!$captcha) $result = curl_get($url);
-		else $result = curl_get($url."?captcha=true");
+		if($captcha && !isset($_SESSION['url'])) {
+			$result = $this->load(false);
+			if(isset($result['error']))
+				return $result;
+			$url = $result['url'].'?captcha=true';
+		}else if($captcha && isset($_SESSION['url']))
+			$url = $_SESSION['url'].'?captcha=true';
+		else if(isset($_SESSION['url']))
+			$url = $_SESSION['url'];
+		else $url = 'https://siga.ufjf.br/redirect.php/';
+
+		$result = curl_get($url);
 		if(isset($result['error'])) return $result;
 		
 		$data = array(
 			'url'       => $_SESSION['url'],
-			'challenge' => preg_match('~challenge.*value="(.*)">.*res.*__~s', $result['body'], $r)?$r[1]:false,
+			'challenge' => strpart(strstr($result['body'], 'challenge'), 'value="', '"'),
 			'mysiga'    => session_id(),
 			'siga3'     => $_SESSION['session'],
 			'time'      => Date('r'),
 		);
-		if($captcha) $data['captcha'] = preg_match('~name="loginCaptcha".*files/inline/(.*)\.png.*idCaptcha"~s', $result['body'], $r)?$r[1]:false;
+		if($captcha) $data['captcha'] = strpart(strstr($result['body'], 'Captcha'), 'inline/', '.');
 		
 		if(!$data['url'] || !$data['challenge'] || !$data['mysiga'] || !$data['siga3'] || !$data['time'] || ($captcha && !$data['captcha']))
 			return MyError::report('SIGA_PAGE_UNLOAD');
@@ -45,6 +53,7 @@ class MySiga {
 	public function user_login($user, $response, $captcha='') {
 		if(session_status() != PHP_SESSION_ACTIVE)
 			session_start();
+		
 		if(!isset($_SESSION['session']))
 			return $this->error('SIGA_PAGE_NOT_LOADED');
 		
@@ -64,7 +73,6 @@ class MySiga {
 		if(!empty($captcha)) $body += array(
 			"loginCaptcha" => $captcha,
 			"idCaptcha"    => $_SESSION["captcha"],
-			"challenge"    => $_SESSION["challenge"],
 		);
 
 		$result = post('/siga/login/authenticate/?', $body);
@@ -125,18 +133,18 @@ class MySiga {
 		$result = get('/siga/academico/aluno/formDadosAluno');
 		if(isset($result['error'])) return $result;
 
-		$body1 = preg_match('~id="menuLayout"(.*)<div class="userBar"~s', $result['body'], $r)?$r[1]:false;
-		$body2 = preg_match('~id="bodyLayout">(.*)<legend>Endereço</legend>~s', $result['body'], $r)?$r[1]:false;
-
+		$result['body'] = strpart($result['body'], 'menuL');
 		$user = array(
-			'cpf'       => preg_match('~rio:\s(.*)]</li>.*<b>Minhas~s', $body1, $r)?$r[1]:false,
-			'matricula' => preg_match('~Perfil Atual:\s(.*)]</li>~s', $body1, $r)?$r[1]:false,
-			'msginbox'  => preg_match('~siga/common/caixamensagem/formCaixa/(.*)"\s><b>Minhas~s', $body1, $r)?$r[1]:false,
-			'email'     => strtolower(preg_match('~name="pessoa::email".*value="(.*)"\sdata-dojo-type~s', $body2, $r)?$r[1]:false),
-			'name'      => Utiliries::upname(preg_match('~name="pessoa::nome".*value="(.*)"\sreadonly.*::nomePai~s', $body2, $r)?$r[1]:false),
+			'cpf'       => strpart($result['body'], "rio: ", "]"),
+			'matricula' => strpart($result['body'], "Atual: ", "]"),
+			'msginbox'  => strpart($result['body'], 'Caixa/', '"'),
 		);
 
-		if(!$user["cpf"] || !$user["matricula"] || !$user["msginbox"] || !$user["email"] || !$user["name"])
+		$result['body'] = strpart($result['body'], 'bodyL');
+		$user['email']  = strtolower(strpart(strstr($result['body'], 'email'), 'value="', '"'));
+		$user['name']   = upname(strpart(strstr($result['body'], 'nome'), 'value="', '"'));
+
+		if(!$user['cpf'] || !$user['matricula'] || !$user['msginbox'] || !$user['email'] || !$user['name'])
 			return MyError::report('SIGA_NO_LOGGED');
 		
 		$user['logged'] = true;
@@ -144,5 +152,6 @@ class MySiga {
 	}
 	
 }
-}
+
+} // End of namespace
 ?>

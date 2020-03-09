@@ -32,8 +32,8 @@ function post($uri, $body = array(), $cookies = array()) {
     curl_setopt($request, CURLOPT_USERAGENT, $useragent);
     $content = curl_exec($request);
 
-    $data['header'] = preg_match('~(.*)\r\n\r\n<\!~s', $content, $r)?$r[1]:false;
-    $data['body'] = substr($content, strlen($data['header'])+4);
+    $data['header'] = strstr($content, '<', true);
+    $data['body'] = substr($content, strlen($data['header']));
     $data["url"] = curl_getinfo($request, CURLINFO_EFFECTIVE_URL);
     $data["code"] = curl_getinfo($request, CURLINFO_HTTP_CODE);
 
@@ -59,7 +59,7 @@ function curl_get($url, $cookies = array()) {
     foreach($cookies as $cookie_key => $cookie_value)
         $cookie_line .= ' '.$cookie_key.'='.$cookie_value.';';
     $cookie_line = ltrim($cookie_line, ';');
-
+    
     $request = curl_init($url);
     curl_setopt($request, CURLOPT_COOKIESESSION,  true);
     curl_setopt($request, CURLOPT_POST,           false);
@@ -74,10 +74,10 @@ function curl_get($url, $cookies = array()) {
     curl_setopt($request, CURLOPT_USERAGENT, $useragent);
     $content = curl_exec($request);
     
-    $data['header'] = preg_match('~(.*)\r\n\r\n<\!~s', $content, $r)?$r[1]:false;
-    $data['body'] = substr($content, strlen($data['header'])+4);
-    $data['url'] = curl_getinfo($request, CURLINFO_EFFECTIVE_URL);
-    $data['code'] = curl_getinfo($request, CURLINFO_HTTP_CODE);
+    $data['header'] = strstr($content, '<', true);
+    $data['body']   = substr($content, strlen($data['header']));
+    $data['url']    = curl_getinfo($request, CURLINFO_EFFECTIVE_URL);
+    $data['code']   = curl_getinfo($request, CURLINFO_HTTP_CODE);
 
     if($data['code'] == 401)
         return MyError::report('SIGA_NO_LOGGED');
@@ -98,7 +98,8 @@ function curl_get($url, $cookies = array()) {
     if(isset($data['cookies']['PHPSESSID']))
         $_SESSION['session'] = $data['cookies']['PHPSESSID'];
 
-    $url = preg_match('#http.*index.php#', $data['url'], $r)?$r[0].'/':false;
+    $url = strpart($data['url'], null, 'index.php', false, true);
+    if($url) $url.'/';
     if(!isset($_SESSION['url'])) $_SESSION['url'] = $url;
     if(!isset($_COOKIES['url'])) setcookie('url', $url);
     
@@ -120,9 +121,12 @@ function upname($name) {
     return substr($name, 1);
 }
 
-// depreciated
-function strpart($string, $start=false, $end=false, $keep_start=false) {
-    return strstr(substr(strstr($string, ($start !== false)?$start:""), $keep_start?0:strlen($start)), ($end !== false)?$end:"", true);
+function strpart($string, $start=false, $end=false, $keep_start=false, $keep_end=false) {
+    $string = ($start != false)?strstr($string, $start):$string;
+    $string = ($start != false && !$keep_start)?substr($string, strlen($start)):$string;
+    if($end != false) {$string = strstr($string, $end, true);
+    $string = ($string != false && $keep_end)?$string.$end:$string;}
+    return $string;
 }
 
 } // End of namespace
