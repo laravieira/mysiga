@@ -117,21 +117,21 @@ class MySiga {
 		if(!isset($_SESSION['session']))
 			return $this->error('SIGA_PAGE_NOT_LOADED');
 		
+		$result = $this->get('/siga/academico/aluno/formDadosAluno');
+		if(isset($result['error'])) return $result;
 
-		$result = $this->get("/siga/academico/aluno/formDadosAluno");
-		if(isset($result["error"])) return $result;
+		$body1 = preg_match('~id="menuLayout"(.*)<div class="userBar"~s', $result['body'], $r)?$r[1]:false;
+		$body2 = preg_match('~id="bodyLayout">(.*)<legend>Endereço</legend>~s', $result['body'], $r)?$r[1]:false;
 
-		$result["body"] = strstr($result["body"], 'id="menuLayout"');
 		$user = array(
-			// Change this to preg_match
-			"cpf"       => $this->strpart($result["body"], "rio: ", "]"),
-			"matricula" => $this->strpart($result["body"], "Perfil Atual: ", "]"),
-			"msginbox"  => $this->strpart($result["body"], 'siga/common/caixamensagem/formCaixa/', '"'),
-			"email"     => strtolower($this->strpart(strstr($result["body"], 'name="pessoa::email"'), 'value="', '"')),
-			//"name"      => upname(strpart(strstr($result["body"], 'name="pessoa::nome"'), 'value="', '"')),
+			'cpf'       => preg_match('~rio:\s(.*)]</li>.*<b>Minhas~s', $body1, $r)?$r[1]:false,
+			'matricula' => preg_match('~Perfil Atual:\s(.*)]</li>~s', $body1, $r)?$r[1]:false,
+			'msginbox'  => preg_match('~siga/common/caixamensagem/formCaixa/(.*)"\s><b>Minhas~s', $body1, $r)?$r[1]:false,
+			'email'     => strtolower(preg_match('~name="pessoa::email".*value="(.*)"\sdata-dojo-type~s', $body2, $r)?$r[1]:false),
+			'name'      => $this->upname(preg_match('~name="pessoa::nome".*value="(.*)"\sreadonly.*::nomePai~s', $body2, $r)?$r[1]:false),
 		);
 
-		if(!$user["cpf"] || !$user["matricula"] || !$user["msginbox"] || !$user["email"])// || !$user["name"])
+		if(!$user["cpf"] || !$user["matricula"] || !$user["msginbox"] || !$user["email"] || !$user["name"])
 			return $this->error('SIGA_NO_LOGGED');
 		
 		$user['logged'] = true;
@@ -246,6 +246,20 @@ class MySiga {
 		return $myerror->report($flag);
 	}
 	
+	private function upname($name) {
+		$words = explode(" ", $name);
+		$name = "";
+		foreach($words as $word) {
+			if($word == "I" || $word == "II" || $word == "III" || $word == "IV" || $word == "V" || $word == "VI")
+				$name .= " ".$word;
+			else if(strlen($word) < 4)
+				$name .= " ".mb_strtolower($word);
+			else
+				$name .= " ".mb_convert_case($word, MB_CASE_TITLE, "UTF-8");
+		}
+		return substr($name, 1);
+	}
+
 	// depreciated
 	private function strpart($string, $start=false, $end=false, $keep_start=false) {
 		return strstr(substr(strstr($string, ($start !== false)?$start:""), $keep_start?0:strlen($start)), ($end !== false)?$end:"", true);
