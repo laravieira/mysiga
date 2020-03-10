@@ -130,7 +130,6 @@ class SigaUser {
         return $classes;
     }
 
-    
     public function history() {
 		if(session_status() != PHP_SESSION_ACTIVE)
             session_start();
@@ -167,6 +166,34 @@ class SigaUser {
             'halfyear' => $class->semestre,
         );
         return $history;
+    }
+
+    public function pre_registration() {
+		if(session_status() != PHP_SESSION_ACTIVE)
+            session_start();
+        if(!isset($_SESSION['session']))
+            return SigaError::report('SIGA_PAGE_NOT_LOADED');
+    
+        $result = get('/siga/academico/prematricula/formMatricula');
+        if(isset($result['error'])) return $result;
+
+        $result['body'] = strpart($result['body'], 'var fase = ', 'require');
+
+        // -----------------------------------
+        // ATENTION: Incorect names and styles
+        // -----------------------------------
+
+        $data = array(
+            'fase'        => substr($result['body'], 0, 1),
+            'coordenator' => strpart(strstr($result['body'], 'acess'), "'", "'") == 'N'?false:true,
+            'finisher'    => strpart(strstr($result['body'], 'forma'), "'", "'")?false:true,
+        );
+
+        $result['body'] = '[{"'.strpart($result['body'], 'var ', 'var acess').'}]';
+        $result['body'] = str_replace(['var ', ' = '], ['}, {"', '": '], $result['body']);
+        $data['data']   = json_decode($result['body']);
+        
+        return $data;
     }
 
 }
