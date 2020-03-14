@@ -222,6 +222,69 @@ class SigaUser {
         return $data;
     }
 
+    
+    function registration($method) {
+		if(session_status() != PHP_SESSION_ACTIVE)
+            session_start();
+        if(!isset($_SESSION['session']))
+            return SigaError::report('SIGA_PAGE_NOT_LOADED');
+    
+        $body = array(
+            "__LAYOUT"         => "default",
+            "__ELEMENT"        => "centerPane",
+            "__TEMPLATE"       => "base",
+            "__ISFILEUPLOAD"   => "no",
+            "__ISAJAXEVENT"    => "no",
+            "__EVENTTARGET"    => "btnPost",
+            // This id is the MySiga birthday
+            // Siga 3 id is: 199543
+            "idPrograma"       => 07032020,
+            "ajaxResponseType" => "json",
+        );
+
+        $header = array("X-Requested-With" => "XMLHttpRequest");
+        // user request page: /siga/academico/acessoaluno/formComprovanteMatricula
+        $result = post("/siga/academico/aluno/repComprovanteMatricula", $body, $header);
+        if(isset($result['error'])) return $result;
+        $result['body'] = json_decode($result['body']);
+        
+        $filename = "Comprovante de Matrícula.pdf";
+        
+        if($method != "view" && $method != "download") {
+            return array(
+                "name"   => $filename,
+                "type"   => "application/pdf",
+                "outway" => array(
+                    "url"    => $result['body']->data,
+                    "Cookie" => array("PHPSESSID"=>$_SESSION["session"]),
+                ),
+            );
+        }else {
+            $result = get(strstr($result['body']->data, "/core"), true);
+            if(isset($result['error'])) return $result;
+            
+            if($method == "view") {
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: inline; filename="'.$filename.'"');
+                header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0, max-age=0');
+                header('Pragma: public');
+                header('Expires: 0');
+                // This don't work, I don't know why 
+                //header('Content-Length: '.strlen($result['body']));
+                echo $result['body'];
+            }else if ($method == "download") {
+                header('Content-Type: application/force-download; application/octet-stream; application/download');
+                header('Content-Disposition: attachment; filename="'.$filename.'"');
+                header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0, max-age=0');
+                header('Pragma: public');
+                header('Expires: 0');
+                // This don't work, I don't know why
+                //header('Content-Length: '.strlen($result['body']));
+                echo $result['body'];
+            }
+        }
+    }
+
 }
 
 } // End of namespace

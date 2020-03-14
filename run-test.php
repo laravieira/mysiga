@@ -38,4 +38,7 @@ if(isset($_GET['history']))
 if(isset($_GET['pre_registration']))
     show($user->pre_registration());
 
+if(isset($_GET['registration']))
+    show($user->registration($_GET['registration']));
+
 ?>
