@@ -12,24 +12,30 @@ const MYSIGA_SERVER   = 'https://jwdouglas.net/api/mysiga';
 const MYSIGA_DESC     = 'An unofficial API RESTful for SIGA3 of UFJF based on webscraping with PHP.';
 const MYSIGA_DOC      = 'bit.ly/mysiga';
 
-function get($uri) {
-    return curl_get($_SESSION['url'].$uri);
+function get($uri, $header_separetor=false) {
+    return curl_get($_SESSION['url'].$uri, [], $header_separetor);
 }
 
-function post($uri, $body = array(), $cookies = array()) {
+function post($uri, $body = array(), $headers = array(), $cookies = array()) {
     
     $cookies["PHPSESSID"] = $_SESSION["session"];
 
-    $cookie_line = "Cookie:";
+    $cookie_line = "";
     foreach($cookies as $cookie_key => $cookie_value)
         $cookie_line .= " ".$cookie_key."=".$cookie_value.";";
     $cookie_line = ltrim($cookie_line, ";");
+
+    $headers['Cookie'] = $cookie_line;
+    
+    $header_line = array();
+    foreach($headers as $key => $value)
+        $header_line[] = $key.': '.$value;
 
     $request = curl_init($_SESSION['url'].$uri);
     curl_setopt($request, CURLOPT_COOKIESESSION,  false);
     curl_setopt($request, CURLOPT_POST,           true);
     curl_setopt($request, CURLOPT_POSTFIELDS,     http_build_query($body));
-    curl_setopt($request, CURLOPT_HTTPHEADER,     array($cookie_line));
+    curl_setopt($request, CURLOPT_HTTPHEADER,     $header_line);
     curl_setopt($request, CURLINFO_HEADER_OUT,    true);
     curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($request, CURLOPT_HEADER,         true);
@@ -40,8 +46,8 @@ function post($uri, $body = array(), $cookies = array()) {
     curl_setopt($request, CURLOPT_USERAGENT, $useragent);
     $content = curl_exec($request);
 
-    $data['header'] = strstr($content, '<', true);
-    $data['body'] = substr($content, strlen($data['header']));
+    $data['header'] = strstr($content, "\r\n\r\n", true);
+    $data['body'] = substr($content, strlen($data['header'])+2);
     $data["url"] = curl_getinfo($request, CURLINFO_EFFECTIVE_URL);
     $data["code"] = curl_getinfo($request, CURLINFO_HTTP_CODE);
 
@@ -58,7 +64,7 @@ function post($uri, $body = array(), $cookies = array()) {
     return $data;
 }
 
-function curl_get($url, $cookies = array()) {
+function curl_get($url, $cookies = array(), $header_separetor = false) {
     
     if(isset($_SESSION['session']))
         $cookies['PHPSESSID'] = $_SESSION['session'];
@@ -82,8 +88,8 @@ function curl_get($url, $cookies = array()) {
     curl_setopt($request, CURLOPT_USERAGENT, $useragent);
     $content = curl_exec($request);
     
-    $data['header'] = strstr($content, '<', true);
-    $data['body']   = substr($content, strlen($data['header']));
+    $data['header'] = $header_separetor?strstr($content, "\r\n\r\n", true):strstr($content, '<', true);
+    $data['body']   = substr($content, strlen($data['header'])+($header_separetor?4:0));
     $data['url']    = curl_getinfo($request, CURLINFO_EFFECTIVE_URL);
     $data['code']   = curl_getinfo($request, CURLINFO_HTTP_CODE);
 
