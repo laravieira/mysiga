@@ -67,7 +67,7 @@ class SigaLogin {
 			"idCaptcha"    => $_SESSION["captcha"],
 		);
 
-		$result = post('/siga/login/authenticate/?', $body);
+		$result = post('/siga/login/authenticate', $body);
 		if(isset($result['error'])) return $result;
 		
 		$result = preg_match('~\?(.*)=~', $result['url'], $r)?$r[1]:false;
