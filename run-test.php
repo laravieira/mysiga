@@ -6,13 +6,30 @@ function show($data) {echo json_encode($data);}
 
 // Test siga load
 $siga = new MySIGA\SigaLogin();
-//show($siga->load(false));
-//show($siga->login($_POST["cpf"], $_POST["pass"]));
-//show($siga->status());
-//show($siga->logout());
-
 $user = new MySiga\SigaUser();
-//show($user->data());
-show($user->history());
+
+if(isset($_GET['load']))
+    show($siga->load($_GET['load']));
+
+if(isset($_GET['login_client']))
+    show($siga->user_login($_POST["cpf"], $_POST["response"], $_GET['user_login']));
+
+if(isset($_GET['login']))
+    show($siga->login($_POST["cpf"], $_POST["pass"]));
+
+if(isset($_GET['status']))
+    show($siga->status());
+
+if(isset($_GET['logout']))
+    show($siga->logout());
+
+if(isset($_GET['redirect']))
+    show($siga->redirect());
+
+if(isset($_GET['data']))
+    show($user->data());
+
+if(isset($_GET['history']))
+    show($user->history());
 
 ?>

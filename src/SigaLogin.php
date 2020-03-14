@@ -108,6 +108,9 @@ class SigaLogin {
 	public function logout() {
 		if(session_status() != PHP_SESSION_ACTIVE)
 			session_start();
+		if(!isset($_SESSION['session']))
+			return SigaError::report('SIGA_PAGE_NOT_LOADED');
+		
 		get('siga/login/logout');
 		session_destroy();
 		return array(
@@ -143,6 +146,22 @@ class SigaLogin {
 		return $user;
 	}
 	
+	public function redirect() {
+		if(session_status() != PHP_SESSION_ACTIVE)
+			session_start();
+		if(!isset($_SESSION['session']))
+			return SigaError::report('SIGA_PAGE_NOT_LOADED');
+		
+		// -----------------------------
+		// ATENTION: This is not working
+		// -----------------------------
+		
+		http_response_code(303);
+		$host = preg_match('~:\/\/(.*)\/index.php~', $_SESSION['url'], $r)?$r[1]:false;
+		setcookie('PHPSESSID', $_SESSION['session'], ['Domain'=>$host, 'Path'=>'/']);
+		header('Location: '.$_SESSION['url'].'/siga/academico/acessoaluno/main');
+	}
+
 }
 
 } // End of namespace
