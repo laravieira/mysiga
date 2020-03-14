@@ -51,7 +51,7 @@ class SigaUser {
             'birthday'   => date_format(date_create_from_format('d/m/Y H:i:s O', $birthday), 'r'),
             'birthplace' => upname($birthloc[0]).', '.$birthloc[1],
         );
-        //print_r($result['body']);
+        
         $result['body'] = strpart($result['body'], 'CEP');
         $complement = explode('/', strpart(strstr($result['body'], 'complemento'), 'value="', '"').'/');
         $user['address'] = array(
@@ -167,6 +167,59 @@ class SigaUser {
             'halfyear' => $class->semestre,
         );
         return $history;
+    }
+
+    public function pre_registration() {
+		if(session_status() != PHP_SESSION_ACTIVE)
+            session_start();
+        if(!isset($_SESSION['session']))
+            return SigaError::report('SIGA_PAGE_NOT_LOADED');
+    
+        $result = get('/siga/academico/prematricula/formMatricula');
+        if(isset($result['error'])) return $result;
+
+        $result['body'] = strpart($result['body'], 'var fase = ', 'require');
+
+        $data = array(
+            'fase'        => substr($result['body'], 0, 1),
+            'coordenator' => strpart(strstr($result['body'], 'acess'), "'", "'") == 'N'?false:true,
+            'finisher'    => strpart(strstr($result['body'], 'forma'), "'", "'")?false:true,
+        );
+
+        $result['body'] = '[{"'.strpart($result['body'], 'var ', 'var acess').'}]';
+        $result['body'] = str_replace(['var ', ' = '], ['}, {"', '": '], $result['body']);
+        $data['data']   = json_decode($result['body']);
+        
+        // ----------------------------------------------------
+        // The key inside the $data['data'] are in portuguese
+        // because will spend many resouses to convert all keys
+        // to english, but style names and class codes will be
+        // fix belong. I will not change key language!
+        // Ps: There are many fors... I know it. :/
+        // ----------------------------------------------------
+
+        $class_to_fix   = ['turmasOferecidas', 'selecionadas', 'matriculas', 'resultados'];
+        $teather_to_fix = ['docentes'];
+        foreach($data['data'] as $group) {
+            foreach($class_to_fix as $index) {
+                if(isset($group->$index)){
+                    foreach($group->$index as $class) {
+                        $class->disciplina = trim($class->disciplina);
+                        $class->nome       = upname($class->nome);
+                    }
+                }
+            }
+            foreach($teather_to_fix as $index) {
+                if(isset($group->$index)){
+                    foreach($group->$index as $class) {
+                        $class->disciplina = trim($class->disciplina);
+                        $class->docente    = upname($class->docente);
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 
 }

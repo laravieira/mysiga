@@ -29,7 +29,13 @@ if(isset($_GET['redirect']))
 if(isset($_GET['data']))
     show($user->data());
 
+if(isset($_GET['grade']))
+    show($user->grade());
+
 if(isset($_GET['history']))
     show($user->history());
+
+if(isset($_GET['pre_registration']))
+    show($user->pre_registration());
 
 ?>
