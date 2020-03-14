@@ -51,11 +51,11 @@ class SigaUser {
             'birthday'   => date_format(date_create_from_format('d/m/Y H:i:s O', $birthday), 'r'),
             'birthplace' => upname($birthloc[0]).', '.$birthloc[1],
         );
-
+        //print_r($result['body']);
         $result['body'] = strpart($result['body'], 'CEP');
         $complement = explode('/', strpart(strstr($result['body'], 'complemento'), 'value="', '"').'/');
         $user['address'] = array(
-            'stret'        => upname(strpart(strstr($result['body'], 'endereco'), 'value="', '"')),
+            'stret'        => upname(trim(strpart(strstr($result['body'], ':endereco'), 'value="', '"'), ',')),
             'number'       => trim($complement[0]),
             'complement'   => trim(upname($complement[1])),
             'neighborhood' => upname(strpart(strstr($result['body'], 'bairro'), 'value="', '"')),
