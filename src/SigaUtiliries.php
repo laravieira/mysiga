@@ -121,9 +121,12 @@ function upname($name) {
     foreach($words as $word) {
         if($word == "I" || $word == "II" || $word == "III" || $word == "IV" || $word == "V" || $word == "VI")
             $name .= " ".$word;
-        else if(strlen($word) < 4)
-            $name .= " ".mb_strtolower($word);
-        else
+        else if(strlen($word) < 4) {
+            $word .= " ".mb_strtolower($word);
+            if($word == 'rua') $name .= ' Rua';
+            if($word == 'ap')  $name .= ' Ap.';
+            if($word == 'ap.') $name .= ' Ap.';
+        }else
             $name .= " ".mb_convert_case($word, MB_CASE_TITLE, "UTF-8");
     }
     return substr($name, 1);
