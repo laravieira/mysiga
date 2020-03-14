@@ -146,17 +146,12 @@ class SigaLogin {
 		return $user;
 	}
 	
-<<<<<<< HEAD
 	public function redirect() {
-=======
-	public function transfer() {
->>>>>>> 3bb00205cd4ebee17be22fa54c234038b8bcf540
 		if(session_status() != PHP_SESSION_ACTIVE)
 			session_start();
 		if(!isset($_SESSION['session']))
 			return SigaError::report('SIGA_PAGE_NOT_LOADED');
 		
-<<<<<<< HEAD
 		// -----------------------------
 		// ATENTION: This is not working
 		// -----------------------------
@@ -165,14 +160,6 @@ class SigaLogin {
 		$host = preg_match('~:\/\/(.*)\/index.php~', $_SESSION['url'], $r)?$r[1]:false;
 		setcookie('PHPSESSID', $_SESSION['session'], ['Domain'=>$host, 'Path'=>'/']);
 		header('Location: '.$_SESSION['url'].'/siga/academico/acessoaluno/main');
-=======
-		http_response_code(303);
-		session_id($_SESSION['session']);
-		$host = preg_match('~:\/\/(.*)\/index.php~', $_SESSION['url'], $r)?$r[1]:false;
-		setcookie('PHPSESSID', $_SESSION['session'], ['Domain'=>$host]);
-		header('Location: '.$_SESSION['url'].'/siga/academico/acessoaluno/main');
-		return;
->>>>>>> 3bb00205cd4ebee17be22fa54c234038b8bcf540
 	}
 
 }
