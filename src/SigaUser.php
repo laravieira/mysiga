@@ -130,7 +130,6 @@ class SigaUser {
         return $classes;
     }
 
-    
     public function history() {
 		if(session_status() != PHP_SESSION_ACTIVE)
             session_start();

@@ -6,6 +6,7 @@ function show($data) {echo json_encode($data);}
 
 // Test siga load
 $siga = new MySIGA\SigaLogin();
+<<<<<<< HEAD
 $user = new MySiga\SigaUser();
 
 if(isset($_GET['load']))
@@ -40,5 +41,17 @@ if(isset($_GET['pre_registration']))
 
 if(isset($_GET['registration']))
     show($user->registration($_GET['registration']));
+=======
+//show($siga->load(false));
+show($siga->login($_GET["cpf"], $_GET["pass"]));
+//show($siga->status());
+//show($siga->logout());
+show($siga->transfer());
+
+$user = new MySiga\SigaUser();
+//show($user->data());
+//show($user->history());
+//show($user->pre_registration());
+>>>>>>> 3bb00205cd4ebee17be22fa54c234038b8bcf540
 
 ?>
