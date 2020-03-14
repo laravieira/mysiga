@@ -122,10 +122,16 @@ function upname($name) {
         if($word == "I" || $word == "II" || $word == "III" || $word == "IV" || $word == "V" || $word == "VI")
             $name .= " ".$word;
         else if(strlen($word) < 4) {
-            $word .= " ".mb_strtolower($word);
-            if($word == 'rua') $name .= ' Rua';
-            if($word == 'ap')  $name .= ' Ap.';
-            if($word == 'ap.') $name .= ' Ap.';
+            $word = mb_strtolower($word);
+            if($word == 'cel') $word = 'Cel';
+            if($word == 'rua') $word = 'Rua';
+            if($word == 'ap')  $word = 'Ap.';
+            if($word == 'ap.') $word = 'Ap.';
+            if($word == 'ed')  $word = 'Ed.';
+            if($word == 'ed.') $word = 'Ed.';
+            if($word == 'av')  $word = 'Av.';
+            if($word == 'av.') $word = 'Av.';
+            $name .= ' '.$word;
         }else
             $name .= " ".mb_convert_case($word, MB_CASE_TITLE, "UTF-8");
     }
