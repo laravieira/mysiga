@@ -143,6 +143,20 @@ class SigaLogin {
 		return $user;
 	}
 	
+	public function transfer() {
+		if(session_status() != PHP_SESSION_ACTIVE)
+			session_start();
+		if(!isset($_SESSION['session']))
+			return SigaError::report('SIGA_PAGE_NOT_LOADED');
+		
+		http_response_code(303);
+		session_id($_SESSION['session']);
+		$host = preg_match('~:\/\/(.*)\/index.php~', $_SESSION['url'], $r)?$r[1]:false;
+		setcookie('PHPSESSID', $_SESSION['session'], ['Domain'=>$host]);
+		header('Location: '.$_SESSION['url'].'/siga/academico/acessoaluno/main');
+		return;
+	}
+
 }
 
 } // End of namespace
