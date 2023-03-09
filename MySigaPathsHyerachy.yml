@@ -1,0 +1,106 @@
++academico:
+  moodle:
+    login
+academico:
+  acessoaluno:
+    formComprovanteMatricula
+    formConsultaHorario
+    formConsultaPlanoDepartamentalP1
+    formEmitirHistorico
+    formMsgCoordenacao
+    formNota
+    formTrancamentoOpcoes
+    main
+  aluno:
+    formAtualizaCorRaca
+    formCalcularIRA
+    formCriteriosPromocao
+    formDadosAluno
+    formRepAtestadoMatriculaAluno
+    formDadosAluno
+  consulta:
+    formConsultaRAG
+    formPlanoDepartamentalFind
+    grafAlunosTipoCurso
+  curso:
+    formRepGradeAluno
+  disciplina:
+    formEmenta
+  turma:
+    formHorarioTurmas
+adm:
+  financeiro:
+    formRelatorioComprovanteRendimentosPessoal
+agendadortarefas:
+  main:
+    main
+api:
+  tokenusuario:
+    formBloquearTokenAtivo
+apoio:
+  apoiocandidato:
+    formAcessoCandidato
+biblioteca:
+  bibliotecasvirtuais:
+    atheneu
+    ieee
+    minhaBiblioteca
+    pearson
+  main:
+    consultapergamum
+    meupergamum
+common:
+  pessoa:
+    enviarCodigoVerificacaoEmail
+    formAlterarEmail
+  usuario:
+    formAlterarSenha
+    formTrocaPerfil
+  caixamensagem:
+    formCaixa
+documentacao:
+  casouso:
+    formFind
+  diagrama:
+    formFind
+  dicionarioclasse:
+    formFind
+  pacote:
+    formFind
+  tipodiagrama:
+    formFind
+entidade:
+  entidade:
+    formConsulta
+    main
+  entidadeitem:
+    main
+  entidadeusuario:
+    formConsulta
+estagio:
+  coe:
+    formFind
+  concedenteconveniada:
+    formFind
+  equiparacaoestagio:
+    formFind
+  estagio:
+    formFind
+  vagaestagio:
+    formFind
+eventos:
+  gerenciarevento:
+    buscarEventosPorGrupos
+integracaootrs:
+  otrs:
+  otrsFaq:
+login:
+  authenticate:
+  logout:
+main:
+  ajaxRedirect:
+  formListaSitesUsuario:
+  logout:
+prograd:
+  projeto:
+    formFind
