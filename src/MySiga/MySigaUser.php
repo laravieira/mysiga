@@ -24,7 +24,7 @@ class MySigaUser {
             'matricula' => strpart($info, 'Perfil Atual: ', ']'),
             'msginbox'  => strpart($info, 'siga/common/caixamensagem/formCaixa/', '"'),
             'email'     => strtolower(strpart(strstr($info, 'name="pessoa::email"'), 'value="', '"')),
-            'name'      => upname(strpart(strstr($info, 'name="pessoa::nome"'), 'value="', '"')),
+            'name'      => upname(html_entity_decode(strpart(strstr($info, 'name="pessoa::nome"'), 'value="', '"'))),
         );
 
         if(!$user['cpf'] || !$user['matricula'] || !$user['msginbox'] || !$user['email'] || !$user['name'])
@@ -49,7 +49,7 @@ class MySigaUser {
     /**
      * @throws MySigaException
      */
-    static function coordenatorMessage(): array
+    static function coordinationMessage(): array
     {
         $scp = MySiga::load();
         $data = $scp->get('/siga/academico/acessoaluno/formMsgCoordenacao');
@@ -63,7 +63,7 @@ class MySigaUser {
                 'code' => trim($text[0]),
                 'name' => upname(html_entity_decode(trim($text[1]), encoding:'UTF-8')),
             ),
-            'coordenator' => upname($cood),
+            'coordinator' => upname($cood),
             'msg' => strip_tags($msg),
         );
     }
@@ -136,7 +136,7 @@ class MySigaUser {
 
         return array(
             'matricula' => strpart(strstr($data['content'], 'id="campo1"'), '>', '<'),
-            'name'      => upname(strpart(strstr($data['content'], 'id="campo2"'), '>', '<')),
+            'name'      => upname(html_entity_decode(strpart(strstr($data['content'], 'id="campo2"'), '>', '<'))),
             'unlocked'  => (bool)strpos(strpart(strstr($data['content'], 'id="campo3"'), '>', '<', true), 'Ativo'),
             'year'      => intval($text[0]),
             'semester'  => intval($text[1])?:$text[1],
@@ -160,12 +160,12 @@ class MySigaUser {
             'profile'    => intval(strpart($data['content'], 'formCaixa/', '"')),
             'matricula'  => strpart($data['content'], 'Atual: ', ']'),
             'modified'   => date_create_from_format('d/m/Y', strmpart($data['content'], 'dataAlteracao', '>', '<'))->format('Y/m/d'),
-            'name'       => upname(strmpart($data['content'], 'nome"', 'value="', '"')),
-            'father'     => upname(strmpart($data['content'], 'nomePai', 'value="', '"')),
-            'mother'     => upname(strmpart($data['content'], 'nomeMae', 'value="', '"')),
+            'name'       => upname(html_entity_decode(strmpart($data['content'], 'nome"', 'value="', '"'))),
+            'father'     => upname(html_entity_decode(strmpart($data['content'], 'nomePai', 'value="', '"'))),
+            'mother'     => upname(html_entity_decode(strmpart($data['content'], 'nomeMae', 'value="', '"'))),
             'birth'      => date_create_from_format('d/m/Y', strmpart($data['content'], 'dataNasci', 'value="', '"'))->format('Y/m/d'),
             'hometown'   => array(
-                'town'  => upname(trim(strpart(strmstr($data['content'], 'dataNasci', 'Local'), 'value="', '/'))),
+                'town'  => upname(html_entity_decode(trim(strpart(strmstr($data['content'], 'dataNasci', 'Local'), 'value="', '/')))),
                 'state' => trim(strmpart(strmstr($data['content'], 'dataNasci', 'Local'), 'value="', '/', '"')),
             ),
             'telephone'  => strmpart($data['content'], 'telefone', 'value="', '"'),
@@ -174,10 +174,11 @@ class MySigaUser {
             'address'    => array(
                 'cep'        => strmpart($data['content'], 'CEP', 'value="', '"'),
                 'id'         => intval(strmpart($data['content'], 'idMunicipio', 'value="', '"')),
-                'street'     => upname(strmpart($data['content'], '::end', 'value="', '"')),
-                'complement' => upname(strmpart($data['content'], 'complemento', 'value="', '"')),
-                'district'   => upname(strmpart($data['content'], 'bairro', 'value="', '"')),
-                'city'       => upname(strmpart($data['content'], 'municipio', 'value="', '"')),
+                'street'     => upname(html_entity_decode(strmpart($data['content'], '::end', 'value="', '"'))),
+                'number'     => strmpart($data['content'], 'numero', 'value="', '"'),
+                'complement' => upname(html_entity_decode(strmpart($data['content'], 'complemento', 'value="', '"'))),
+                'district'   => upname(html_entity_decode(strmpart($data['content'], 'bairro', 'value="', '"'))),
+                'city'       => upname(html_entity_decode(strmpart($data['content'], 'municipio', 'value="', '"'))),
                 'state'      => strmpart($data['content'], 'UF', 'value="', '"'),
             ),
             'cpf'        => strmpart($data['content'], 'CPF', 'value="', '"'),
@@ -202,19 +203,19 @@ class MySigaUser {
         $data = $scp->post('/siga/mcomponenteendereco/ajaxPesquisaCEP/?idComponente=mcomponenteendereco', $post);
         $data = html_entity_decode($data['content']);
 
-        $cepid      = intval(strmpart($data, 'idMunicipio', 'value="', '"'));
+        $id      = intval(strmpart($data, 'idMunicipio', 'value="', '"'));
         $address    = upname(strmpart($data, '::end', 'value="', '"'));
         $complement = upname(strmpart($data, 'complemento', 'value="', '"'));
         $district   = upname(strmpart($data, 'bairro', 'value="', '"'));
         $city       = upname(strmpart($data, 'municipio', 'value="', '"'));
         $state      = strmpart($data, 'UF', 'value="', '"');
 
-        if(empty($cepid) || empty($state) || empty($city))
+        if(empty($id) || empty($state) || empty($city))
             throw new MySigaException('Unrecognized cep code.');
         
         return array(
             'cep'        => $code,
-            'cepid'      => $cepid,
+            'id'         => $id,
             'address'    => (empty($address) || accents($address) == $city)?null:$address,
             'complement' => empty($complement)?null:$complement,
             'district'   => empty($district)?null:$district,
@@ -237,10 +238,15 @@ class MySigaUser {
             $adr['address'] = $address;
         if(empty($adr['address']) && empty($address))
             $adr['address'] = $data['address']['street'];
-        
-        if(empty($adr['complement']) && (!empty($number) || !empty($complement)))
-            $adr['complement'] = $number.', '.$complement;
-        if(empty($adr['complement']) && empty($number) && empty($complement))
+
+        if(empty($adr['number']) && (!empty($number)))
+            $adr['number'] = $number;
+        if(empty($adr['number']) && empty($number))
+            $adr['number'] = $data['address']['number'];
+
+        if(empty($adr['complement']) && (!empty($complement)))
+            $adr['complement'] = $complement;
+        if(empty($adr['complement']) && empty($complement))
             $adr['complement'] = $data['address']['complement'];
 
         if(empty($adr['district']) && !empty($district))
@@ -262,12 +268,12 @@ class MySigaUser {
             'pessoa::idPessoa'                 => $data['id'],
             'mcomponenteendereco::CEP'         => $adr['cep'],
             'mcomponenteendereco::endereco'    => $adr['address'],
-            'mcomponenteendereco::number'      => empty($number)?$adr['complement']:$number,
+            'mcomponenteendereco::number'      => $adr['number'],
             'mcomponenteendereco::complemento' => $adr['complement'],
             'mcomponenteendereco::bairro'      => $adr['district'],
             'mcomponenteendereco::municipio'   => $adr['city'],
             'mcomponenteendereco::UF'          => $adr['state'],
-            'mcomponenteendereco::idMunicipio' => $adr['cepid'],
+            'mcomponenteendereco::idMunicipio' => $adr['id'],
         );
         
         $scp = MySiga::load();
@@ -287,20 +293,20 @@ class MySigaUser {
             throw new MySigaException('No data to update');
 
         $data = self::data();
-        if(!empty($tel) && !preg_match('/\(?\d{2}\)?\s?\d{4}-?\d{4}/', $tel))
+        if(!empty($tel) && !preg_match('/^\(?\d{2}\)?\s?\d{4}-?\d{4}$/', $tel))
             throw new MySigaException('Invalid telephone number.');
-        if(!empty($cel) && !preg_match('/\(?\d{2}\)?\s?\d{5}-?\d{4}/', $cel))
-            throw new MySigaException('Invalid celphone number.');
+        if(!empty($cel) && !preg_match('/^\(?\d{2}\)?\s?\d{5}-?\d{4}$/', $cel))
+            throw new MySigaException('Invalid cellphone number.');
         if(!empty($email) && !preg_match('/[-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+.[a-zA-Z]{2,4}/', $email))
             throw new MySigaException('Invalid email.');
         
-        $ptel = empty($tel)?'':'('.substr($tel, 0, 2).') '.substr($tel, 2, 4).'-'.substr($tel, 6);
-        $pcel = empty($cel)?'':'('.substr($cel, 0, 2).') '.substr($cel, 2, 5).'-'.substr($cel, 7);
-        
+        $ptel = empty($tel)?'':$tel;
+        $pcel = empty($cel)?'':$cel;
+
         $post = array(
             'pessoa::idPessoa' => $data['id'],
             'pessoa::telefone' => !isset($tel)?$data['telephone']:$ptel,
-            'pessoa::celular'  => !isset($cel)?$data['celphone']:$pcel,
+            'pessoa::celular'  => !isset($cel)?$data['cellphone']:$pcel,
             'pessoa::email'    => empty($email)?$data['email']:$email,
             'mcomponenteendereco::CEP'         => $data['address']['cep'],
             'mcomponenteendereco::endereco'    => $data['address']['street'],
@@ -308,7 +314,7 @@ class MySigaUser {
             'mcomponenteendereco::bairro'      => $data['address']['district'],
             'mcomponenteendereco::municipio'   => $data['address']['city'],
             'mcomponenteendereco::UF'          => $data['address']['state'],
-            'mcomponenteendereco::idMunicipio' => $data['address']['cepid'],
+            'mcomponenteendereco::idMunicipio' => $data['address']['id'],
         );
         
         $scp = MySiga::load();
@@ -320,7 +326,7 @@ class MySigaUser {
         $data = self::data();
         return array(
             'telephone' => $data['telephone'],
-            'celphone'  => $data['celphone'],
+            'cellphone'  => $data['cellphone'],
             'email'     => $data['email'],
         );
     }

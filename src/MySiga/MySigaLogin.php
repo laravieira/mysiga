@@ -64,9 +64,9 @@ class MySigaLogin {
             throw new MySigaException('Captcha wrong.');
 
         if(isset($_COOKIE['challenge']))
-            setcookie('challenge',   null, time()-1, '/');
+            setcookie('challenge',   '', time()-1, '/');
         if(isset($_COOKIE['captcha']))
-            setcookie('captcha', null, time()-1, '/');
+            setcookie('captcha', '', time()-1, '/');
 
         return array(
             'server' => $scp->server(),
