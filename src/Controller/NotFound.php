@@ -4,7 +4,7 @@ namespace MySiga\Controller;
 
 use MySiga\MySigaException;
 
-class NotFound extends Controller
+class NotFound implements Controller
 {
     /**
      * @throws MySigaException

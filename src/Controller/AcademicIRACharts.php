@@ -5,7 +5,7 @@ namespace MySiga\Controller;
 use MySiga\MySigaAcademic;
 use MySiga\MySigaException;
 
-class AcademicIRACharts extends Controller
+class AcademicIRACharts implements Controller
 {
     /**
      * @throws MySigaException

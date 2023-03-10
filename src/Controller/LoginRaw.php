@@ -5,7 +5,7 @@ namespace MySiga\Controller;
 use MySiga\MySigaException;
 use MySiga\MySigaLogin;
 
-class LoginRaw extends Controller
+class LoginRaw implements Controller
 {
     /**
      * @throws MySigaException

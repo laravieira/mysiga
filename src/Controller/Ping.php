@@ -8,9 +8,9 @@ use const MySiga\MYSIGA_NAME;
 use const MySiga\MYSIGA_REDIRECT;
 use const MySiga\MYSIGA_VERSION;
 
-class Ping
+class Ping implements Controller
 {
-    public static function execute(): array
+    public static function execute(string $uri = '/', array $params = []): array
     {
         return array(
             'ping'    => 'pong',

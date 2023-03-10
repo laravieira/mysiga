@@ -5,7 +5,7 @@ namespace MySiga\Controller;
 use MySiga\MySigaException;
 use MySiga\MySigaUser;
 
-class UserLock extends Controller
+class UserLock implements Controller
 {
     /**
      * @throws MySigaException

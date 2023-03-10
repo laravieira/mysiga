@@ -5,7 +5,7 @@ namespace MySiga\Controller;
 use MySiga\MySigaException;
 use MySiga\MySigaUser;
 
-class UserSkinColor extends Controller
+class UserSkinColor implements Controller
 {
     /**
      * @throws MySigaException

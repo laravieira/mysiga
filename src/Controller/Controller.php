@@ -2,9 +2,7 @@
 
 namespace MySiga\Controller;
 
-class Controller
+interface Controller
 {
-    public static function execute(string $uri = '/', array $params = []): array {
-        return [];
-    }
+    public static function execute(string $uri = '/', array $params = []): array;
 }

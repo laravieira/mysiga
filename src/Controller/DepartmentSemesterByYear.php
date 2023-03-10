@@ -6,7 +6,7 @@ use DateTime;
 use MySiga\MySigaDepartment;
 use MySiga\MySigaException;
 
-class DepartmentSemesterByYear extends Controller
+class DepartmentSemesterByYear implements Controller
 {
     /**
      * @throws MySigaException

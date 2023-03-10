@@ -5,7 +5,7 @@ namespace MySiga\Controller;
 use MySiga\MySigaException;
 use MySiga\MySigaUser;
 
-class UserCEP extends Controller
+class UserCEP implements Controller
 {
     /**
      * @throws MySigaException

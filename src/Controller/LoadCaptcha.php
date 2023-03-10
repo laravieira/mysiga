@@ -5,7 +5,7 @@ namespace MySiga\Controller;
 use MySiga\MySiga;
 use MySiga\MySigaException;
 
-class LoadCaptcha extends Controller
+class LoadCaptcha implements Controller
 {
     /**
      * @throws MySigaException

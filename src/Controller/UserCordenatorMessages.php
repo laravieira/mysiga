@@ -5,7 +5,7 @@ namespace MySiga\Controller;
 use MySiga\MySigaException;
 use MySiga\MySigaUser;
 
-class UserCordenatorMessages extends Controller
+class UserCordenatorMessages implements Controller
 {
     /**
      * @throws MySigaException

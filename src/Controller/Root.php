@@ -11,7 +11,7 @@ use const MySiga\MYSIGA_NAME;
 use const MySiga\MYSIGA_REDIRECT;
 use const MySiga\MYSIGA_VERSION;
 
-class Root extends Controller
+class Root implements Controller
 {
     public static function execute(string $uri = '/', array $params = []): array
     {

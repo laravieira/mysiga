@@ -5,7 +5,7 @@ namespace MySiga\Controller;
 use MySiga\MySigaDepartment;
 use MySiga\MySigaException;
 
-class DepartmentRoom extends Controller
+class DepartmentRoom implements Controller
 {
     /**
      * @throws MySigaException
