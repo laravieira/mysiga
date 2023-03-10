@@ -7,13 +7,6 @@ use DateTimeInterface;
 use Scraping\Scraping;
 use function Scraping\strpart;
 
-const MYSIGA_NAME      = 'MySiga';
-const MYSIGA_VERSION   = '0.1.0';
-const MYSIGA_REDIRECT  = 'https://siga.ufjf.br/redirect.php/';
-const MYSIGA_CACHE     = '/../../cache';
-const MYSIGA_USERAGENT = MYSIGA_NAME.'/'.MYSIGA_VERSION;
-const MYSIGA_SESSNAME  = 'PHPSESSID';
-
 class MySiga extends Scraping {
 
     static function init($router) {
@@ -27,20 +20,10 @@ class MySiga extends Scraping {
                 'server'  => $e->sigaServer(),
                 'siga'    => $e->sigaSession(),
                 'client'  => $e->clientSession(),
+                'docs'    => MYSIGA_DOCS,
                 'date'    => (new DateTime('now'))->format(DateTimeInterface::RSS),
             ), $e->getCode()<100?500:$e->getCode());
         }
-    }
-
-    public static function ping(): array
-    {
-        return array(
-            'ping'    => 'pong',
-            'name'    => MYSIGA_NAME,
-            'version' => MYSIGA_VERSION,
-            'siga'    => MYSIGA_REDIRECT,
-            'date'    => (new Datetime('now'))->format(DateTimeInterface::RSS)
-        );
     }
 
     public static function cache(string $name, mixed $cache=null, string $expire=null): mixed {

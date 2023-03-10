@@ -1,6 +1,7 @@
 <?PHP
 
 require 'vendor/autoload.php';
+require 'constants.php';
 
 use Mezon\Router\Router;
 use MySiga\MySiga;
@@ -13,6 +14,7 @@ function addRoute(string $path, string $controller, string|array $method = 'GET'
 }
 
 // MySiga
+addRoute('/',             'Root');
 addRoute('/ping',         'Ping');
 addRoute('/load',         'Load');
 addRoute('/load/captcha', 'LoadCaptcha');
@@ -29,7 +31,7 @@ addRoute('/user/cep/[i:cep]',         'UserCEP');
 addRoute('/user/message/coordenator', 'UserCoordenatorMessage');
 addRoute('/user/detail',              'UserDetails');
 addRoute('/user/lock',                'UserLock');
-addRoute('/user/message',             'UserMessages');
+addRoute('/user/messages',            'UserMessages');
 addRoute('/user/skincolor',           'UserSkinColor');
 addRoute('/user/update/address',      'UserUpdateAddress',   'POST');
 addRoute('/user/update/contact',      'UserUpdateContact',   'POST');
@@ -38,13 +40,13 @@ addRoute('/user/update/skincolor',    'UserUpdateSkinColor', 'POST');
 // MySigaAcademic
 addRoute('/academic/grade',                 'AcademicGrade');
 addRoute('/academic/history',               'AcademicHistory');
-addRoute('/academic/schedule/[a:code]',     'AcademicSchedule');
-addRoute('/academic/registration',          'AcademicRegistration');
-addRoute('/academic/pre-registration',      'AcademicPreRegistration');
-addRoute('/academic/registration/[a:view]', 'AcademicRegistration');
 addRoute('/academic/ira',                   'AcademicIRA');
 addRoute('/academic/ira/chart',             'AcademicIRACharts');
 addRoute('/academic/ira/chart/[a:a]/[a:d]', 'AcademicIRACharts');
+addRoute('/academic/pre-registration',      'AcademicPreRegistration');
+addRoute('/academic/registration',          'AcademicRegistration');
+addRoute('/academic/registration/[a:view]', 'AcademicRegistration');
+addRoute('/academic/schedule/[a:code]',     'AcademicSchedule');
 
 // MySigaDepartment
 addRoute('/department/[i:id]',                   'Department');

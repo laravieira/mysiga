@@ -12,8 +12,8 @@ class UserCEP extends Controller
      */
     public static function execute(string $uri = '/', array $params = []): array
     {
-        if(!isset($get['cep']) || strlen($get['cep']) != 8)
+        if(!isset($params['cep']) || strlen($params['cep']) != 8)
             throw new MySigaException('No valid cep code.');
-        return MySigaUser::cep($get['cep']);
+        return MySigaUser::cep($params['cep']);
     }
 }
