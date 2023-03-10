@@ -18,7 +18,8 @@
     },
     "autoload": {
         "psr-4": {
-            "MySiga\\": "src/MySiga/"
+            "MySiga\\": "src/MySiga/",
+            "MySiga\\Controller\\": "src/Controller/"
         }
     }
 }

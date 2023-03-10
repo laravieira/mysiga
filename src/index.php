@@ -4,61 +4,59 @@ require 'vendor/autoload.php';
 
 use Mezon\Router\Router;
 use MySiga\MySiga;
-use MySiga\MySigaAcademic;
 
 date_default_timezone_set('America/Sao_Paulo');
 $router = new Router();
 
-
+function addRoute(string $path, string $controller, string|array $method = 'GET'): void {
+    $GLOBALS['router']->addRoute($path, "MySiga\Controller\\$controller::execute", $method);
+}
 
 // MySiga
-$router->addRoute('/ping',         'MySiga\MySiga::ping');
-$router->addRoute('/load',         function() {return (new MySiga())->begin();});
-$router->addRoute('/load/captcha', function() {return (new MySiga())->begin(true);});
-
+addRoute('/ping',         'Ping');
+addRoute('/load',         'Load');
+addRoute('/load/captcha', 'LoadCaptcha');
 
 // MySigaUser
-$router->addRoute('/user',                     'MySiga\MySigaUser::user');
-$router->addRoute('/user/logout',              'MySiga\MySigaUser::logout');
-$router->addRoute('/user/message',             'MySiga\MySigaUser::messages');
-$router->addRoute('/user/message/coordenator', 'MySiga\MySigaUser::coordenatorMessage');
-$router->addRoute('/user/lock',                'MySiga\MySigaUser::lock');
-$router->addRoute('/user/skincolor',           'MySiga\MySigaUser::skinColor');
-$router->addRoute('/user/data',                'MySiga\MySigaUser::data');
-$router->addRoute('/user/cep/[i:cep]',         'MySiga\MySigaInput::cep');
-$router->addRoute('/user/login',               'MySiga\MySigaInput::login',     'POST');
-$router->addRoute('/user/login/old',           'MySiga\MySigaInput::oldLogin',  'POST');
-$router->addRoute('/user/update/skincolor',    'MySiga\MySigaInput::skinColor', 'POST');
-$router->addRoute('/user/update/password',     'MySiga\MySigaInput::password',  'POST');
-$router->addRoute('/user/update/address',      'MySiga\MySigaInput::address',   'POST');
-$router->addRoute('/user/update/contact',      'MySiga\MySigaInput::contact',   'POST');
-
+addRoute('/user',                     'User');
+addRoute('/user/cep/[i:cep]',         'UserCEP');
+addRoute('/user/message/coordenator', 'UserCoordenatorMessage');
+addRoute('/user/detail',              'UserDetails');
+addRoute('/user/lock',                'UserLock');
+addRoute('/user/login',               'UserLogin',           'POST');
+addRoute('/user/logout',              'UserLogout');
+addRoute('/user/message',             'UserMessages');
+addRoute('/user/login/raw',           'UserRawLogin',        'POST');
+addRoute('/user/skincolor',           'UserSkinColor');
+addRoute('/user/update/address',      'UserUpdateAddress',   'POST');
+addRoute('/user/update/contact',      'UserUpdateContact',   'POST');
+addRoute('/user/update/password',     'UserUpdatePassword',  'POST');
+addRoute('/user/update/skincolor',    'UserUpdateSkinColor', 'POST');
 
 // MySigaAcademic
-$router->addRoute('/academic/grade',                 'MySiga\MySigaAcademic::grade');
-$router->addRoute('/academic/history',               'MySiga\MySigaAcademic::history');
-$router->addRoute('/academic/schedule/[a:code]',     'MySiga\MySigaInput::schedule');
-$router->addRoute('/academic/registration',          function() {return MySigaAcademic::registration();});
-$router->addRoute('/academic/registration/pre',      'MySiga\MySigaAcademic::preRegistration');
-$router->addRoute('/academic/registration/[a:view]', 'MySiga\MySigaInput::registration');
-$router->addRoute('/academic/ira',                   'MySiga\MySigaAcademic::ira');
-$router->addRoute('/academic/ira/chart',             'MySiga\MySigaAcademic::iraCharts');
-$router->addRoute('/academic/ira/chart/[a:a]/[a:d]', 'MySiga\MySigaInput::iraChart');
-
+addRoute('/academic/grade',                 'AcademicGrade');
+addRoute('/academic/history',               'AcademicHistory');
+addRoute('/academic/schedule/[a:code]',     'AcademicSchedule');
+addRoute('/academic/registration',          'AcademicRegistration');
+addRoute('/academic/pre-registration',      'AcademicPreRegistration');
+addRoute('/academic/registration/[a:view]', 'AcademicRegistration');
+addRoute('/academic/ira',                   'AcademicIRA');
+addRoute('/academic/ira/chart',             'AcademicIRACharts');
+addRoute('/academic/ira/chart/[a:a]/[a:d]', 'AcademicIRACharts');
 
 // MySigaDepartment
-$router->addRoute('/department',                          'MySiga\MySigaDepartment::list');
-$router->addRoute('/department/[i:id]',                   'MySiga\MySigaInput::department');
-$router->addRoute('/department/[i:id]/[i:y]/[a:s]',       'MySiga\MySigaInput::department');
-$router->addRoute('/department/room/[i:room]',            'MySiga\MySigaInput::room');
-$router->addRoute('/department/[i:id]/rooms',             'MySiga\MySigaInput::rooms');
-$router->addRoute('/department/[i:id]/[i:y]/[a:s]/rooms', 'MySiga\MySigaInput::rooms');
-$router->addRoute('/department/semester',                 'MySiga\MySigaDepartment::semesters');
-$router->addRoute('/department/semester/[i:id]',          'MySiga\MySigaInput::semesterById');
-$router->addRoute('/department/semester/[i:y]/[a:s]',     'MySiga\MySigaInput::semesterByYear');
+addRoute('/department/[i:id]',                   'Department');
+addRoute('/department/[i:id]/[i:y]/[a:s]',       'Department');
+addRoute('/department',                          'DepartmentListAll');
+addRoute('/department/room/[i:room]',            'DepartmentRoom');
+addRoute('/department/[i:id]/rooms',             'DepartmentRooms');
+addRoute('/department/[i:id]/[i:y]/[a:s]/rooms', 'DepartmentRooms');
+addRoute('/department/semester/[i:id]',          'DepartmentSemesterById');
+addRoute('/department/semester/[i:y]/[a:s]',     'DepartmentSemesterByYear');
+addRoute('/department/semester',                 'DepartmentSemesters');
 
 
 // Not Found for all requests types
-$router->addRoute('*', 'MySigaInput::all', ['GET', 'POST', 'PUT', 'DELETE', 'OPTION', 'PATCH']);
+addRoute('*', 'NotFound', ['GET', 'POST', 'PUT', 'DELETE', 'OPTION', 'PATCH']);
 
 MySiga::init($router);

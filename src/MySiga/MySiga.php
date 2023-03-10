@@ -10,7 +10,7 @@ use function Scraping\strpart;
 const MYSIGA_NAME      = 'MySiga';
 const MYSIGA_VERSION   = '0.1.0';
 const MYSIGA_REDIRECT  = 'https://siga.ufjf.br/redirect.php/';
-const MYSIGA_CACHE     = '/../cache';
+const MYSIGA_CACHE     = '/../../cache';
 const MYSIGA_USERAGENT = MYSIGA_NAME.'/'.MYSIGA_VERSION;
 const MYSIGA_SESSNAME  = 'PHPSESSID';
 

@@ -31,13 +31,13 @@ class MySigaUser {
         if(empty($captcha))
             (new MySiga())->begin();
         $response = md5($user.':'.md5($password).':'.$_SESSION['challenge']);
-        return MySigaUser::oldLogin($user, $response, $captcha);
+        return MySigaUser::rawLogin($user, $response, $captcha);
     }
 
     /**
      * @throws MySigaException
      */
-    static function oldLogin(string $user, string $response, string $captcha=null): array
+    static function rawLogin(string $user, string $response, string $captcha=null): array
     {
         if(!isset($_SESSION['challenge']))
             throw new MySigaException('You need to load a siga session before trying login.', 7);
@@ -271,11 +271,11 @@ class MySigaUser {
                 'state' => trim(strmpart(strmstr($data['content'], 'dataNasci', 'Local'), 'value="', '/', '"')),
             ),
             'telephone'  => strmpart($data['content'], 'telefone', 'value="', '"'),
-            'celphone'   => strmpart($data['content'], 'celular', 'value="', '"'),
+            'cellphone'  => strmpart($data['content'], 'celular', 'value="', '"'),
             'email'      => strtolower(strmpart($data['content'], 'email', 'value="', '"')),
             'address'    => array(
                 'cep'        => strmpart($data['content'], 'CEP', 'value="', '"'),
-                'cepid'      => intval(strmpart($data['content'], 'idMunicipio', 'value="', '"')),
+                'id'         => intval(strmpart($data['content'], 'idMunicipio', 'value="', '"')),
                 'street'     => upname(strmpart($data['content'], '::end', 'value="', '"')),
                 'complement' => upname(strmpart($data['content'], 'complemento', 'value="', '"')),
                 'district'   => upname(strmpart($data['content'], 'bairro', 'value="', '"')),
