@@ -3,9 +3,9 @@
 namespace MySiga\Controller;
 
 use MySiga\MySigaException;
-use MySiga\MySigaUser;
+use MySiga\MySigaLogin;
 
-class UserUpdatePassword extends Controller
+class LoginChange extends Controller
 {
     /**
      * @throws MySigaException
@@ -24,6 +24,6 @@ class UserUpdatePassword extends Controller
         if(!$uc || !$lc || !$nb || strlen($_POST['password']) < 8)
             throw new MySigaException('New password is too easy.');
 
-        return MySigaUser::updatePassword($_POST['oldpassword'], $_POST['password']);
+        return MySigaLogin::updatePassword($_POST['oldpassword'], $_POST['password']);
     }
 }

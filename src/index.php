@@ -17,20 +17,22 @@ addRoute('/ping',         'Ping');
 addRoute('/load',         'Load');
 addRoute('/load/captcha', 'LoadCaptcha');
 
+// MySigaLogin
+addRoute('/login',        'Login',       'POST');
+addRoute('/login/change', 'LoginChange', 'POST');
+addRoute('/login/logout', 'LoginLogout');
+addRoute('/login/raw',    'LoginRaw',    'POST');
+
 // MySigaUser
 addRoute('/user',                     'User');
 addRoute('/user/cep/[i:cep]',         'UserCEP');
 addRoute('/user/message/coordenator', 'UserCoordenatorMessage');
 addRoute('/user/detail',              'UserDetails');
 addRoute('/user/lock',                'UserLock');
-addRoute('/user/login',               'UserLogin',           'POST');
-addRoute('/user/logout',              'UserLogout');
 addRoute('/user/message',             'UserMessages');
-addRoute('/user/login/raw',           'UserRawLogin',        'POST');
 addRoute('/user/skincolor',           'UserSkinColor');
 addRoute('/user/update/address',      'UserUpdateAddress',   'POST');
 addRoute('/user/update/contact',      'UserUpdateContact',   'POST');
-addRoute('/user/update/password',     'UserUpdatePassword',  'POST');
 addRoute('/user/update/skincolor',    'UserUpdateSkinColor', 'POST');
 
 // MySigaAcademic
