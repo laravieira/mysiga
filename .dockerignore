@@ -1,0 +1,11 @@
+/.github
+/.idea
+/vendor
+.gitignore
+fly.toml
+composer.lock
+Dockerfile
+MySigaPathsHyerachy.yml
+MySigaPathsProgress.xlsx
+LICENSE
+README.md

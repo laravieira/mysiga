@@ -13,8 +13,7 @@
     "require": {
         "php": "^8.1",
         "mezon/router": "^1.5.1",
-        "laravieira/scraping": "dev-main",
-        "google/cloud-recaptcha-enterprise": "^v1.2.6"
+        "laravieira/scraping": "dev-main"
     },
     "autoload": {
         "psr-4": {
