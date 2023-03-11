@@ -5,6 +5,7 @@ namespace MySiga;
 use DateTime;
 use DateTimeInterface;
 use Scraping\Scraping;
+use function Scraping\strmpart;
 use function Scraping\strpart;
 
 class MySiga extends Scraping {
@@ -60,20 +61,34 @@ class MySiga extends Scraping {
      */
     public function begin(bool $useCaptcha=false): array
     {
+        if(session_status() != PHP_SESSION_ACTIVE)
+            session_start();
         $data = parent::get('', true);
         self::useSession(true);
 
-        if(self::session(strpart($data['content'], 'PHPSESSID=', ';')) == null || self::server($data['header']['Location']) == null)
+        if(self::session(strpart($data['content'], 'PHPSESSID=', ';')) == null
+        || self::server($data['header']['Location']) == null)
             throw new MySigaException('Unable to load siga.', 3);
         
         $data = $useCaptcha?self::get('/?captcha=true')['content']:$data['content'];
 
         $challenge = strpart(strstr($data, 'challenge'), 'value="', '"');
-        $captcha = $useCaptcha?strpart(strstr($data, 'name="loginCaptcha"'), 'files/inline/'):false;
-        $captcha = $useCaptcha?substr(strstr($captcha, '.png" alt="Captcha"', true), 13):false;
-        
+
+        // $captchaId = $useCaptcha?strmpart($data, 'name="loginCaptcha"', 'files/inline/'):false;
+        // $captchaId = $useCaptcha?strstr($captcha, '.png" alt="Captcha"', true):false;
+        $captcha = $useCaptcha?array(
+            'id' => strmpart($data, 'idCaptcha', 'value="', '"'),
+            'numbers' => array(
+                intval(strmpart($data, 'captchaNumero1', 'value="', '"')),
+                intval(strmpart($data, 'captchaNumero2', 'value="', '"'))
+            ),
+            'tip' => 'Maybe just sum these two numbers?'
+            // 'id' => $captchaId,
+            // 'url' => $this->server().'/core/download/files/inline/'.$captchaId.'.png'
+        ):null;
+
         if($useCaptcha) {
-            setcookie('captcha', $captcha, 0, '/');
+            setcookie('captcha', json_encode($captcha), 0, '/');
             $_SESSION['captcha'] = $captcha;
         }
         setcookie('challenge', $challenge, 0, '/');
@@ -83,10 +98,7 @@ class MySiga extends Scraping {
 
         return array(
             'challenge' => $challenge,
-            'captcha' => $useCaptcha?array(
-                'id'  => $captcha,
-                'url' => $this->server().'/core/download/files/inline/'.$captcha.'.png'
-            ):null,
+            'captcha' => $useCaptcha?$captcha:null,
             'server' => $this->server(),
             'siga' => $this->session(),
             'client' => session_id(),
@@ -98,7 +110,8 @@ class MySiga extends Scraping {
      */
     private function checkReturn(array $data, bool $headers): array
     {
-        if(($headers && !$data['request']) || ($headers && !$data['header']) || !$data['content'] || !$data['url'] || !$data['code'])
+        if(($headers && !$data['request']) || ($headers && !$data['header'])
+        || !$data['content'] || !$data['url'] || !$data['code'])
             throw new MySigaException('Unable to load siga.', 3);
         else if($data['code'] == 401)
             throw new MySigaException('Login required, please do it first.', 4);

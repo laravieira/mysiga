@@ -10,21 +10,33 @@ class MySigaLogin {
     /**
      * @throws MySigaException
      */
-    static function login(string $user, string $password, string $captcha=null): array
+    static function login(string $user, string $password, int $captcha=null): array
     {
         if(session_status() != PHP_SESSION_ACTIVE)
             session_start();
-        if(empty($captcha))
+        if(!isset($_SESSION['challenge']))
             (new MySiga())->begin();
         $response = md5($user.':'.md5($password).':'.$_SESSION['challenge']);
-        return MySigaLogin::rawLogin($user, $response, $captcha);
+
+        try {
+            return MySigaLogin::rawLogin($user, $response, $captcha);
+        }catch(MySigaException $exception) {
+            if($exception->getCode() != 23654 && $exception->getCode() != 23655)
+                throw $exception;
+
+            // Automatically solve this stupid captcha
+            $data = (new MySiga())->begin(true);
+            $captcha = $data['captcha']['numbers'][0] + $data['captcha']['numbers'][1];
+            return self::login($user, $password, $captcha);
+        }
     }
 
     /**
      * @throws MySigaException
      */
-    static function rawLogin(string $user, string $response, string $captcha=null): array
+    static function rawLogin(string $user, string $response, int $captcha=null): array
     {
+        $scp = MySiga::load();
         if(!isset($_SESSION['challenge']))
             throw new MySigaException('You need to load a siga session before trying login.', 7);
         if(isset($captcha) && !isset($_SESSION['captcha']))
@@ -44,11 +56,12 @@ class MySigaLogin {
         );
 
         if(isset($captcha)) $post += array(
-            'loginCaptcha' => $captcha,
-            'idCaptcha'    => $_SESSION['captcha'],
+            'loginCaptcha'   => $captcha,
+            'idCaptcha'      => $_SESSION['captcha']['id'],
+            'captchaNumero1' => $_SESSION['captcha']['numbers'][0],
+            'captchaNumero2' => $_SESSION['captcha']['numbers'][1]
         );
 
-        $scp = MySiga::load();
         $data = $scp->post('/siga/login/authenticate/?', $post);
         $error = strstr($data['url'], '?');
 
@@ -59,9 +72,9 @@ class MySigaLogin {
         else if(strpos($error, 'errorPass'))
             throw new MySigaException('Wrong Password.');
         else if(strpos($error, 'captcha'))
-            throw new MySigaException('Captcha required, load a captcha, solve and login again.');
+            throw new MySigaException('Captcha required, load a captcha, solve and login again.', 23654);
         else if(strpos($error, 'captchaError'))
-            throw new MySigaException('Captcha wrong.');
+            throw new MySigaException('Captcha wrong.', 23655);
 
         if(isset($_COOKIE['challenge']))
             setcookie('challenge',   '', time()-1, '/');
