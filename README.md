@@ -1,3 +1,5 @@
+[![Fly.io Deployment](https://github.com/laravieira/mysiga/actions/workflows/fly.yml/badge.svg)](https://github.com/laravieira/mysiga/actions/workflows/fly.yml)
+
 # MySIGA
 #### Unofficial UFJF Siga 3 API
 

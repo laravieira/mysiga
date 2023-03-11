@@ -18,7 +18,7 @@ class Login implements Controller
             throw new MySigaException('No valid password.');
         if(isset($_POST['captcha']) && !intval($_POST['captcha']))
             throw new MySigaException('No valid captcha.');
-        $captcha = $_POST['captcha'] ? intval($_POST['captcha']) : null;
+        $captcha = isset($_POST['captcha']) ? intval($_POST['captcha']) : null;
         return MySigaLogin::login($_POST['cpf'], $_POST['password'], $captcha);
     }
 }
