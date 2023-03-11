@@ -33,6 +33,8 @@ addRoute('/user/detail',               'UserDetails');
 addRoute('/user/lock',                 'UserLock');
 addRoute('/user/messages',             'UserMessages');
 addRoute('/user/skincolor',            'UserSkinColor');
+addRoute('/user/update/education',     'UserUpdateEducation', 'POST');
+addRoute('/user/update/pis-pasep',     'UserUpdatePISPASEP',  'POST');
 addRoute('/user/update/address',       'UserUpdateAddress',   'POST');
 addRoute('/user/update/contact',       'UserUpdateContact',   'POST');
 addRoute('/user/update/skincolor',     'UserUpdateSkinColor', 'POST');

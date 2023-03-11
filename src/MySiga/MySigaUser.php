@@ -154,6 +154,12 @@ class MySigaUser {
     {
         $scp = MySiga::load();
         $data = $scp->get('/siga/academico/aluno/formDadosAluno');
+        $educationOptions = explode('<option', strmpart($data['content'], 'grauInstrucao', '<option', '</select>'));
+        foreach($educationOptions as $option)
+            if(str_contains($option, 'selected'))
+                $education = intval(strpart($option, 'value="', '"'));
+        $telephone = strmpart($data['content'], 'telefone', 'value="', '"');
+        $workId = strmpart($data['content'], 'PISPASEP', 'value="', '"');
         
         return array(
             'id'         => intval(strmpart($data['content'], 'idPessoa', 'value="', '"')),
@@ -165,10 +171,22 @@ class MySigaUser {
             'mother'     => upname(html_entity_decode(strmpart($data['content'], 'nomeMae', 'value="', '"'))),
             'birth'      => date_create_from_format('d/m/Y', strmpart($data['content'], 'dataNasci', 'value="', '"'))->format('Y/m/d'),
             'hometown'   => array(
-                'town'  => upname(html_entity_decode(trim(strpart(strmstr($data['content'], 'dataNasci', 'Local'), 'value="', '/')))),
-                'state' => trim(strmpart(strmstr($data['content'], 'dataNasci', 'Local'), 'value="', '/', '"')),
+                'town'        => upname(html_entity_decode(trim(strpart(strmstr($data['content'], 'dataNasci', 'Local'), 'value="', '/')))),
+                'state'       => trim(strmpart(strmstr($data['content'], 'dataNasci', 'Local'), 'value="', '/', '"')),
+                'country'     => array(
+                    'id'   => intval(strmpart($data['content'], 'idPaisNascimento', 'value="', '"')),
+                    'name' => upname(strmpart($data['content'], 'paisNascimento', 'value="', '"')),
+                ),
+                'nationality' => array(
+                    'id'   => intval(strmpart($data['content'], 'idPaisNacionalidade', 'value="', '"')),
+                    'name' => upname(strmpart($data['content'], 'paisNacionalidade', 'value="', '"')),
+                )
             ),
-            'telephone'  => strmpart($data['content'], 'telefone', 'value="', '"'),
+            'sex'        => strmpart($data['content'], 'sexo', 'value="', '"'),
+            'ethiny'     => intval(strmpart($data['content'], 'etnia', 'value="', '"')),
+            'status'     => strmpart($data['content'], 'estadoCivil', 'value="', '"'),
+            'education'  => empty($education) ? false : $education,
+            'telephone'  => empty($telephone) ? false : $telephone,
             'cellphone'  => strmpart($data['content'], 'celular', 'value="', '"'),
             'email'      => strtolower(strmpart($data['content'], 'email', 'value="', '"')),
             'address'    => array(
@@ -186,6 +204,7 @@ class MySigaUser {
                 'code'       => strmpart($data['content'], 'numeroRG', 'value="', '"'),
                 'publisher'  => strmpart($data['content'], 'orgaoRG', 'value="', '"'),
             ),
+            'pis-pasep' => empty($workId)? false : $workId
         );
     }
 
@@ -299,7 +318,7 @@ class MySigaUser {
             throw new MySigaException('Invalid cellphone number.');
         if(!empty($email) && !preg_match('/[-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+.[a-zA-Z]{2,4}/', $email))
             throw new MySigaException('Invalid email.');
-        
+
         $ptel = empty($tel)?'':$tel;
         $pcel = empty($cel)?'':$cel;
 
@@ -316,13 +335,13 @@ class MySigaUser {
             'mcomponenteendereco::UF'          => $data['address']['state'],
             'mcomponenteendereco::idMunicipio' => $data['address']['id'],
         );
-        
+
         $scp = MySiga::load();
         $data = $scp->post('/siga/academico/aluno/saveDadosAluno', $post);
 
         if(!strpos($data['content'], 'Dados pessoais salvos com sucesso.'))
             throw new MySigaException('Can\'t update data.');
-        
+
         $data = self::data();
         return array(
             'telephone' => $data['telephone'],
@@ -331,4 +350,87 @@ class MySigaUser {
         );
     }
 
+    /**
+     * @throws MySigaException
+     */
+    static function updateEducation(int $education=null): array
+    {
+        if(!isset($education))
+            throw new MySigaException('No data to update');
+
+        if(!empty($education) && ($education < 1 || $education > 12 ))
+            throw new MySigaException('Invalid education indicator.');
+
+        $data = self::data();
+        $post = array(
+            'pessoa::idPessoa' => $data['id'],
+            'pessoa::grauInstrucao' => $education,
+            'mcomponenteendereco::CEP'         => $data['address']['cep'],
+            'mcomponenteendereco::endereco'    => $data['address']['street'],
+            'mcomponenteendereco::complemento' => $data['address']['complement'],
+            'mcomponenteendereco::bairro'      => $data['address']['district'],
+            'mcomponenteendereco::municipio'   => $data['address']['city'],
+            'mcomponenteendereco::UF'          => $data['address']['state'],
+            'mcomponenteendereco::idMunicipio' => $data['address']['id'],
+        );
+
+        $scp = MySiga::load();
+        $data = $scp->post('/siga/academico/aluno/saveDadosAluno', $post);
+
+        if(!strpos($data['content'], 'Dados pessoais salvos com sucesso.'))
+            throw new MySigaException('Can\'t update data.');
+
+        $data = self::data();
+        return array(
+            'education' => $data['education'],
+        );
+    }
+
+    /**
+     * @throws MySigaException
+     */
+    static function updatePISPASEP(string $code=null): array
+    {
+        if(!isset($code))
+            throw new MySigaException('No data to update');
+
+        if(!empty($code) && !preg_match("/^\d{3}[.]\d{5}[.]\d{2}-\d$/", $code))
+            throw new MySigaException('Invalid PIS/PASEP code.');
+
+        if(!empty($code)) {
+            // Validation for PIS/PASEP code
+            $digits = str_split($code);
+            if (preg_match('/^(.)\1*[.]\1*[.]\1*-.$/u', $code))
+                throw new MySigaException('Invalid PIS/PASEP code.');
+            $sum = 3 * $digits[0] + 2 * $digits[1] + 9 * $digits[2] + 8 * $digits[4]  + 7 * $digits[5]
+                 + 6 * $digits[6] + 5 * $digits[7] + 4 * $digits[8] + 3 * $digits[10] + 2 * $digits[11];
+            $sub = 11 - $sum % 11;
+            if (intval($digits[13]) !== ($sub === 10 || $sub === 11 ? 0 : $sub))
+                throw new MySigaException('Invalid PIS/PASEP code.');
+        }
+
+        $data = self::data();
+        $post = array(
+            'pessoa::idPessoa' => $data['id'],
+            'documentacao::PISPASEP' => $code,
+            'mcomponenteendereco::CEP'         => $data['address']['cep'],
+            'mcomponenteendereco::endereco'    => $data['address']['street'],
+            'mcomponenteendereco::complemento' => $data['address']['complement'],
+            'mcomponenteendereco::bairro'      => $data['address']['district'],
+            'mcomponenteendereco::municipio'   => $data['address']['city'],
+            'mcomponenteendereco::UF'          => $data['address']['state'],
+            'mcomponenteendereco::idMunicipio' => $data['address']['id'],
+        );
+
+        $scp = MySiga::load();
+        $data = $scp->post('/siga/academico/aluno/saveDadosAluno', $post);
+
+        if(!strpos($data['content'], 'Dados pessoais salvos com sucesso.'))
+            throw new MySigaException('Can\'t update data.');
+
+        $data = self::data();
+        return array(
+            'pis-pasep' => $data['pis-pasep'],
+        );
+    }
 }
