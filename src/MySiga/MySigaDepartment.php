@@ -248,9 +248,9 @@ class MySigaDepartment {
 
         $data = MySigaDepartment::department($id, $year, $semester);
         $department = $data;
-        foreach($department['classes'] as $cid => $class) {
-            foreach($class['rooms'] as $rid => $room) {
-                $data['classes'][$cid]['rooms'][$rid] = MySigaDepartment::room($room);
+        foreach($department['classes'] as $classId => $class) {
+            foreach($class['rooms'] as $roomId => $room) {
+                $data['classes'][$classId]['rooms'][$roomId] = MySigaDepartment::room($room);
             }
         }
         return MySiga::cache('rooms/'.$id, $data);
