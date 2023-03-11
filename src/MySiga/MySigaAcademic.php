@@ -286,12 +286,12 @@ class MySigaAcademic {
                 'name'   => upname(strip_tags(strmpart($class, 'column2', '"', '"'))),
                 'status' => match(strmpart($class, 'column7', '"', '"')) {
                     'Aprovado' => 'Aproved',
-                    'Rep Nota' => 'Value',
+                    'Rep Nota' => 'Reproved',
                     default => 'Rejected'
                 },
                 'year'     => intval($semester[0]),
                 'halfyear' => intval($semester[1]),
-                'value'    => floatval(strmpart($class, 'column3', '"', '"')),
+                'grade'    => floatval(strmpart($class, 'column3', '"', '"')),
                 //'charged'  => intval(strmpart($class, 'column4', '"', '"')),
                 //'score'    => floatval(strmpart($class, 'column5', '"', '"')),
                 'charge'   => intval(strmpart($class, 'column8', '"', '"')),

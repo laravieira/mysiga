@@ -7,6 +7,7 @@ use Mezon\Router\Router;
 use MySiga\MySiga;
 
 date_default_timezone_set('America/Sao_Paulo');
+set_time_limit(0);
 $router = new Router();
 
 function addRoute(string $path, string $controller, string|array $method = 'GET'): void {

@@ -61,11 +61,11 @@ class MySigaDepartment {
         if(!isset($year))
             $year = intval((new DateTime('now'))->format('Y'));
         if(!isset($semester)) {
-            $semesters = MySigaDepartment::semesters()->semesters;
+            $semesters = MySigaDepartment::semesters()['semesters'];
             foreach($semesters as $sem) {
-                if($sem->year == $year) {
-                    $begin = $sem->begin?(new DateTime())->createFromFormat(DateTimeInterface::RSS, $sem->begin):(new DateTime());
-                    $end   = $sem->end?(new DateTime())->createFromFormat(DateTimeInterface::RSS, $sem->end):(new DateTime());
+                if($sem['year'] == $year) {
+                    $begin = $sem['begin']?(new DateTime())->createFromFormat(DateTimeInterface::RSS, $sem['begin']):(new DateTime());
+                    $end   = $sem['end']?(new DateTime())->createFromFormat(DateTimeInterface::RSS, $sem['end']):(new DateTime());
                     $now   = new DateTime('now');
                     if($now >= $begin && $now < $end) {
                         $period = $sem;
@@ -78,7 +78,7 @@ class MySigaDepartment {
 
         $post = array(
             'filter::idDepto' => $id,
-            'filter::idPeriodoLetivo' => $period->id,
+            'filter::idPeriodoLetivo' => $period['id'],
         );
         $scp   = MySiga::load();
         $data  = $scp->post('/siga/academico/acessoaluno/formConsultaPlanoDepartamentalP2', $post);
@@ -306,9 +306,9 @@ class MySigaDepartment {
      * @throws MySigaException
      */
     public static function semesterById(string $id) {
-        $semesters = MySigaDepartment::semesters()->semesters;
-        if(isset($semesters->$id))
-            return $semesters->$id;
+        $semesters = MySigaDepartment::semesters()['semesters'];
+        if(isset($semesters[$id]))
+            return $semesters[$id];
         else
             throw new MySigaException('There is no cached registry of this semester id.');
     }
@@ -317,9 +317,9 @@ class MySigaDepartment {
      * @throws MySigaException
      */
     public static function semesterByYear(int $year, string $semester) {
-        $semesters = MySigaDepartment::semesters()->semesters;
+        $semesters = MySigaDepartment::semesters()['semesters'];
         foreach($semesters as $value) {
-            if($value->year == $year && $value->semester == $semester)
+            if($value['year'] == $year && $value['semester'] == $semester)
                 return $value;
         }
         throw new MySigaException('There is no cached registry of this semester.');
