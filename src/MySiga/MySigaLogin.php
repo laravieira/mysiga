@@ -21,7 +21,7 @@ class MySigaLogin {
         try {
             return MySigaLogin::rawLogin($user, $response, $captcha);
         }catch(MySigaException $exception) {
-            if($exception->getCode() != 23654 && $exception->getCode() != 23655)
+            if($exception->getMessage() != 'Captcha required.')
                 throw $exception;
 
             // Automatically solve this stupid captcha
@@ -38,9 +38,9 @@ class MySigaLogin {
     {
         $scp = MySiga::load();
         if(!isset($_SESSION['challenge']))
-            throw new MySigaException('You need to load a siga session before trying login.', 7);
+            throw new MySigaException('You need to load a siga session before trying login.', 424);
         if(isset($captcha) && !isset($_SESSION['captcha']))
-            throw new MySigaException('You need to load a siga captcha before trying login with it.', 7);
+            throw new MySigaException('You need to load a siga captcha before trying login with it.', 424);
 
         $post = array(
             'user'         => $user,
@@ -68,13 +68,13 @@ class MySigaLogin {
         if(strpos($error, 'sessionExpired'))
             throw new MySigaException('Siga server session has been expired, do an reload and relogin.');
         else if(strpos($error, 'userNotRegistered'))
-            throw new MySigaException('This CPF isn\'t registered in Siga servers.');
+            throw new MySigaException('This CPF isn\'t registered in Siga servers.', 401);
         else if(strpos($error, 'errorPass'))
-            throw new MySigaException('Wrong Password.');
+            throw new MySigaException('Wrong Password.', 401);
         else if(strpos($error, 'captcha'))
-            throw new MySigaException('Captcha required, load a captcha, solve and login again.', 23654);
+            throw new MySigaException('Captcha required.', 401);
         else if(strpos($error, 'captchaError'))
-            throw new MySigaException('Captcha wrong.', 23655);
+            throw new MySigaException('Captcha wrong.', 401);
 
         if(isset($_COOKIE['challenge']))
             setcookie('challenge',   '', time()-1, '/');

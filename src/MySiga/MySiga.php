@@ -49,7 +49,7 @@ class MySiga extends Scraping {
         if(isset($_SESSION['mysiga']) && $_SESSION['mysiga'] instanceof MySiga)
             return $_SESSION['mysiga'];
         session_destroy();
-        throw new MySigaException('Session not created. Load requested.');
+        throw new MySigaException('Session not created. Load requested.', 424);
     }
 
     public function __construct() {
@@ -68,7 +68,7 @@ class MySiga extends Scraping {
 
         if(self::session(strpart($data['content'], 'PHPSESSID=', ';')) == null
         || self::server($data['header']['Location']) == null)
-            throw new MySigaException('Unable to load siga.', 3);
+            throw new MySigaException('Unable to load siga.', 502);
         
         $data = $useCaptcha?self::get('/?captcha=true')['content']:$data['content'];
 
@@ -112,11 +112,11 @@ class MySiga extends Scraping {
     {
         if(($headers && !$data['request']) || ($headers && !$data['header'])
         || !$data['content'] || !$data['url'] || !$data['code'])
-            throw new MySigaException('Unable to load siga.', 3);
+            throw new MySigaException('Unable to load siga.', 502);
         else if($data['code'] == 401)
-            throw new MySigaException('Login required, please do it first.', 4);
+            throw new MySigaException('Login required, please do it first.', 401);
         else if($data['code'] != 200 && $data['code'] != 302 && $data['code'] != 303)
-            throw new MySigaException('This request is unavailable on Siga servers.', 5);
+            throw new MySigaException('This request is unavailable on Siga servers.', 404);
         else return $data;
     }
 
