@@ -1,0 +1,765 @@
+_id: spc_a8bf9fb704544636a5e56009820e2539
+type: ApiSpec
+parentId: wrk_5d7ce0437a314d71b1258402ebd37ccc
+modified: 1693104681508
+created: 1693070766601
+fileName: mysiga-openapi.yaml
+contents: >-
+  openapi: 3.0.3
+
+  info:
+    title: MySiga API
+    description: This is the MySiga API
+    version: 0.1.0
+    contact:
+      name: L4R4V131R4
+      url: https://laravieira.me
+    termsOfService: https://docs.laravieira.me/mysiga/#what-is-mysiga
+    license:
+      name: Apache 2.0
+      url: https://github.com/laravieira/mysiga/blob/main/LICENSE
+  externalDocs:
+    description: Official Docs
+    url: https://docs.laravieira.me/mysiga
+  servers:
+    - url: http://localhost
+      description: Localhost
+    - url: https://mysiga.laravieira.me
+      description: Test server
+  paths:
+    /:
+      get:
+        tags:
+          - general
+        operationId: root
+        summary: Description of the API
+        description: Description of the API
+        externalDocs:
+          description: MySiga Docs
+          url: https://docs.laravieira.me/mysiga
+        security: []
+        responses:
+          "200":
+            description: Description of the API
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: MySiga
+                    version:
+                      type: string
+                      format: version
+                    siga:
+                      type: string
+                      format: url
+                    github:
+                      type: string
+                      format: url
+                    docs:
+                      type: string
+                      format: url
+                    license:
+                      type: string
+                      format: license
+                    date:
+                      type: string
+                      format: date-time
+    /ping:
+      get:
+        tags:
+          - general
+        operationId: ping
+        summary: Ping pong response
+        description: Ping pong response
+        externalDocs:
+          description: MySiga Docs
+          url: https://docs.laravieira.me/mysiga
+        security: []
+        responses:
+          "200":
+            description: Description of the API
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    ping:
+                      type: string
+                      example: pong
+                    name:
+                      type: string
+                      example: MySiga
+                    version:
+                      type: string
+                      format: version
+                    siga:
+                      type: string
+                      format: url
+                    date:
+                      type: string
+                      format: date-time
+    /load:
+      get:
+        tags:
+          - login
+        operationId: load
+        summary: Load session
+        description: Load a new Siga 3 session
+        externalDocs:
+          description: Load docs
+          url: https://docs.laravieira.me/mysiga/reference/load
+        security: []
+        responses:
+          "200":
+            description: Loaded session
+            headers:
+              Set-Cookie:
+                schema:
+                  type: string
+                  example: PHPSESSID=J23BJKB3KJ34; Path=/;
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    challenge:
+                      type: string
+                      description: Hash used to encript the password before sending it
+                    captcha:
+                      type: object
+                      nullable: true
+                      description: Always null here, use `/load/captcha` to request a new captcha
+                    server:
+                      type: string
+                      format: url
+                      description: The Siga 3 server selected by their load balancer
+                    siga:
+                      type: string
+                      description: Siga session id
+                    client:
+                      type: string
+                      description: MySiga session id
+          "502":
+            $ref: "#/components/responses/502"
+    /load/captcha:
+      get:
+        tags:
+          - login
+        operationId: load-captcha
+        summary: Load session with catpcha 
+        description: Load a new Siga 3 session with a captcha object
+        externalDocs:
+          description: Load with captcha docs
+          url: https://docs.laravieira.me/mysiga/reference/load#load-siga-session-with-captcha
+        security: []
+        responses:
+          "200":
+            description: Loaded session
+            headers:
+              Set-Cookie:
+                schema:
+                  type: string
+                  example: PHPSESSID=J23BJKB3KJ34; Path=/;
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    challenge:
+                      type: string
+                      description: Hash used to encript the password before sending it
+                    captcha:
+                      type: object
+                      nullable: true
+                      properties:
+                        id:
+                          type: string
+                          description: The captcha id
+                        numbers:
+                          type: array
+                          items:
+                            type: number
+                          description: List of numbers to sum
+                        tip:
+                          type: string
+                          description: How to solve the captcha
+                    server:
+                      type: string
+                      format: url
+                      description: The Siga 3 server selected by their load balancer
+                    siga:
+                      type: string
+                      description: Siga session id
+                    client:
+                      type: string
+                      description: MySiga session id
+          "502":
+            $ref: "#/components/responses/502"
+    /login:
+      post:
+        tags:
+          - login
+        operationId: login
+        summary: Login
+        description: Login the user using its cpf and password
+        externalDocs:
+          description: Login docs
+          url: https://docs.laravieira.me/mysiga/reference/login
+        security: []
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  cpf: 
+                    type: string
+                  password:
+                    type: string
+                    format: password
+                  captcha:
+                    description: >
+                      Result of an already requested captcha
+                      The `PHPSESSID` is required to identify the captcha being resolved.
+                      Use `/load/captcha` to request a new captcha.
+                    type: number
+              examples:
+                login:
+                  summary: Normal login request
+                  value:
+                    cpf: "12345678901"
+                    password: "12345678"
+                captcha:
+                  summary: When has a captcha to resolve
+                  value:
+                    cpf: "12345678901"
+                    password: "12345678"
+                    captcha: 5
+          required: true
+        responses:
+          "200":
+            description: Successfuly logged in
+            headers:
+              Set-Cookie:
+                schema:
+                  type: string
+                  example: PHPSESSID=J23BJKB3KJ34; Path=/;
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    server:
+                      type: string
+                      format: url
+                      description: The Siga 3 server selected by their load balancer
+                    siga:
+                      type: string
+                      description: Siga session id
+                    client:
+                      type: string
+                      description: MySiga session id
+                    logged:
+                      type: boolean
+                      description: Always true for 200 response
+          "400":
+            $ref: "#/components/responses/400"
+          "401":
+            $ref: "#/components/responses/401"
+          "502":
+            $ref: "#/components/responses/502"
+    /login/logout:
+      post:
+        tags:
+          - login
+        operationId: logout
+        summary: Logout
+        description: Logout the user from MySiga and from Siga 3 servers
+        externalDocs:
+          description: Logout docs
+          url: https://docs.laravieira.me/mysiga/reference/login/login-logout
+        responses:
+          "200":
+            description: Successfuly logged out
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    server:
+                      type: string
+                      format: url
+                      nullable: true
+                      description: The Siga 3 server selected by their load balancer
+                    siga:
+                      type: string
+                      nullable: true
+                      description: Siga session id
+                    client:
+                      type: string
+                      nullable: true
+                      description: MySiga session id
+                    logged:
+                      type: boolean
+                      description: Always false for 200 response
+          "400":
+            $ref: "#/components/responses/400"
+          "401":
+            $ref: "#/components/responses/401"
+          "502":
+            $ref: "#/components/responses/502"
+    /login/raw:
+      post:
+        tags:
+          - login
+        operationId: login-raw
+        summary: Login Raw
+        description: Login the user using its cpf and the encrypted password
+        externalDocs:
+          description: Login docs
+          url: https://docs.laravieira.me/mysiga/reference/login/login-raw
+        security: []
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  cpf: 
+                    type: string
+                  response:
+                    type: string
+                  captcha:
+                    description: >
+                      Result of an already requested captcha
+                      Use `/load/captcha` to request a new captcha.
+                    type: number
+              examples:
+                login:
+                  summary: Normal login request
+                  value:
+                    cpf: "12345678901"
+                    response: "skfhwiuhiufhbsghiprugh"
+                captcha:
+                  summary: When has a captcha to resolve
+                  value:
+                    cpf: "12345678901"
+                    response: "skfhwiuhiufhbsghiprugh"
+                    captcha: 5
+          required: true
+        responses:
+          "200":
+            description: Successfuly logged in
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    server:
+                      type: string
+                      format: url
+                      description: The Siga 3 server selected by their load balancer
+                    siga:
+                      type: string
+                      description: Siga session id
+                    client:
+                      type: string
+                      description: MySiga session id
+                    logged:
+                      type: boolean
+                      description: Always true for 200 response
+          "400":
+            $ref: "#/components/responses/400"
+          "401":
+            $ref: "#/components/responses/401"
+          "424":
+            $ref: "#/components/responses/424"
+          "502":
+            $ref: "#/components/responses/502"
+    /login/change:
+      post:
+        tags:
+          - login
+        operationId: login-change
+        summary: Change Passowrd
+        description: Change the users password
+        externalDocs:
+          description: Change password docs
+          url: https://docs.laravieira.me/mysiga/reference/login/change
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  oldpassword:
+                    type: string
+                    format: password
+                    description: Old password
+                  password:
+                    type: string
+                    format: password
+                    description: New password
+          required: true
+        responses:
+          "200":
+            description: Successfuly updated the password
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    login:
+                      type: string
+                      description: The logged user cpf number
+                    session:
+                      type: string
+                      description: Siga session id
+                    passwordUpdated:
+                      type: boolean
+                      description: True if the password was changed.
+                    date:
+                      type: string
+                      format: date-time
+          "400":
+            $ref: "#/components/responses/400"
+          "401":
+            $ref: "#/components/responses/401"
+          "424":
+            $ref: "#/components/responses/424"
+          "500":
+            $ref: "#/components/responses/500"
+          "502":
+            $ref: "#/components/responses/502"
+    /user:
+      get:
+        tags:
+          - user
+        operationId: user
+        summary: Basic user data
+        description: Return basic user data
+        externalDocs:
+          description: Change password docs
+          url: https://docs.laravieira.me/mysiga/reference/login/change
+        responses:
+          "200":
+            description: User basic data
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    cpf:
+                      type: string
+                    matricula:
+                      type: string
+                    msginbox:
+                      type: string
+                      description: Siga 3 inbox id
+                    email:
+                      type: string
+                      format: email
+                    name:
+                      type: string
+          "401":
+            $ref: "#/components/responses/401"
+          "424":
+            $ref: "#/components/responses/424"
+          "500":
+            $ref: "#/components/responses/500"
+          "502":
+            $ref: "#/components/responses/502"
+    /user/cep/{cep}:
+      get:
+        tags:
+          - user
+        operationId: user-cep
+        summary: Get the info of a CEP number
+        description: Get data from a CEP number
+        parameters:
+          - name: cep
+            description: CEP code, only numbers
+            in: path
+            required: true
+            schema:
+              type: number
+        responses:
+          "200":
+            description: CEP data
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    cep:
+                      type: string
+                      example: "00000-000"
+                    id:
+                      type: number
+                      description: CEP id
+                    address:
+                      type: string
+                      nullable: true
+                    complement:
+                      type: string
+                      nullable: true
+                    district:
+                      type: string
+                      nullable: true
+                    city:
+                      type: string
+                    state:
+                      type: string
+                      example: "MG"
+          "401":
+            $ref: "#/components/responses/401"
+          "424":
+            $ref: "#/components/responses/424"
+          "500":
+            $ref: "#/components/responses/500"
+          "502":
+            $ref: "#/components/responses/502"
+    /user/message/coordination:
+      get:
+        tags:
+          - user
+        operationId: user-coordination
+        summary: Coordination message
+        description: Coordination message
+        responses:
+          "200":
+            description: Message data
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    course:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                        name:
+                          type: string
+                    coordinator:
+                      type: string
+                      description: Coordinator full name
+                    msg:
+                      type: string
+          "401":
+            $ref: "#/components/responses/401"
+          "424":
+            $ref: "#/components/responses/424"
+          "500":
+            $ref: "#/components/responses/500"
+          "502":
+            $ref: "#/components/responses/502"
+    /user/detail:
+      get:
+        tags:
+          - user
+        operationId: user-detail
+        summary: User Details
+        description: User details, like address and ids
+        responses:
+          "200":
+            description: user details
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                      description: Internal user id
+                    profile:
+                      type: number
+                      description: Internal profile id
+                    matricula:
+                      type: string
+                    modified:
+                      type: string
+                      format: date
+                      description: Last time user details were modified
+                    name:
+                      type: string
+                    father:
+                      type: string
+                    mother:
+                      type: string
+                    birth:
+                      type: string
+                      format: date
+                    hometown:
+                      type: object
+                      properties:
+                        town:
+                          type: string
+                        state:
+                          type: string
+                        country:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                            name:
+                              type: string
+                        nationality:
+                          type: object
+                          description: Country of nationality
+                          properties:
+                            id:
+                              type: number
+                            name:
+                              type: string
+                    sex:
+                      type: string
+                      example: F
+                    ethiny:
+                      type: number
+                      nullable: true
+                      description: ethiny id
+                    status:
+                      type: string
+                      description: user status letter (id)
+                    education:
+                      type: number
+                      nullable: true
+                      description: education level id
+                    telephone:
+                      type: string
+                      nullable: true
+                      format: phone
+                    cellphone:
+                      type: string
+                      format: phone
+                    email:
+                      type: string
+                      format: email
+                    address:
+                      type: object
+                      properties:
+                        cep:
+                          type: string
+                          description: CEP code
+                        id:
+                          type: number
+                          description: CEP id
+                        street:
+                          type: string
+                          nullable: true
+                        number:
+                          type: string
+                          nullable: true
+                        complement:
+                          type: string
+                          nullable: true
+                        district:
+                          type: string
+                          nullable: true
+                        city:
+                          type: string
+                        state:
+                          type: string
+                    cpf:
+                      type: string
+                    rg:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                        publisher:
+                          type: string
+                    pis-pasep:
+                      type: string
+                      nullable: true
+          "401":
+            $ref: "#/components/responses/401"
+          "424":
+            $ref: "#/components/responses/424"
+          "500":
+            $ref: "#/components/responses/500"
+          "502":
+            $ref: "#/components/responses/502"
+  security:
+    - session: []
+  components:
+    schemas:
+      error:
+        type: object
+        properties:
+          code:
+            type: number
+          message:
+            type: string
+            description: A better of the error
+          uri:
+            type: string
+            format: uri
+          server:
+            type: string
+            nullable: true
+            format: url
+            description: The Siga 3 server selected by their load balancer
+          siga:
+            type: string
+            nullable: true
+            description: Siga session id
+          client:
+            type: string
+            nullable: true
+            description: MySiga session id
+          docs:
+            type: string
+            format: url
+          date:
+            type: string
+            format: date-time
+    responses:
+      "400":
+        description: When an error occur by invalid input
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/error"
+      "401":
+        description: User is not authorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/error"
+      "424":
+        description: Session not created/informed. Login requested.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/error"
+      "500":
+        description: Error from Siga 3
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/error"
+      "502":
+        description: Unable to load Siga 3
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/error"
+    securitySchemes:
+      session:
+        description: MySiga session id, informed on login
+        type: apiKey
+        in: cookie
+        name: PHPSESSID
+  tags:
+    - name: user
+      description: User operations
+    - name: login
+      description: Login operations
+    - name: general
+      description: General things
+contentType: yaml
